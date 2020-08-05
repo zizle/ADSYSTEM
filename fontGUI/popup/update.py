@@ -102,6 +102,7 @@ class UpdateDialog(QDialog):
             self.update_button.show()
         else:
             self.update_button.hide()
+            self.close_button.setText("关闭")
         self.last_version_message.setText("最新版本:{}".format(u_data["last_version"]))
         reply.deleteLater()
 
