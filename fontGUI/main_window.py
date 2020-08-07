@@ -11,6 +11,7 @@ from main_window_ui import MainWindowUI
 from frames.homepage import Homepage
 from frames.passport import PassportPage
 from frames.exchange_query import ExchangeQuery
+from frames.contract_kei import ContractKei
 from admin.exchange_spider import ExchangeSpider
 from admin.user import UserAdmin
 from popup.update import UpdateDialog
@@ -124,8 +125,10 @@ class MainWindow(MainWindowUI):
         if action_id == "1":
             self.set_homepage()
             return
-        elif action_id == "2_1":  # 数据查询-交易所数据
+        elif action_id == "2_1":   # 数据查询-交易所数据
             central_widget = ExchangeQuery()
+        elif action_id == "2_2":   # 合约K线
+            central_widget = ContractKei()
         elif action_id == "-8_1":  # 检查更新
             p = UpdateDialog(self)
             p.exec_()
