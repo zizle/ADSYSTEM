@@ -10,7 +10,7 @@ import time
 import logging
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))  # 项目根路径
-
+SECRET_KEY = "0faae00c7d35eeafdf3450a34a767a14fa4068111f98a2519bab58c71011855f"
 
 # 日志记录
 def logger_handler(app_dir, log_level):

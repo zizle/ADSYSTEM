@@ -4,13 +4,24 @@
 # @Author: zizle
 import os
 import random
+import time
+from typing import Optional
+from datetime import datetime, timedelta
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
+from fastapi import Depends, status
+from fastapi.security import OAuth2PasswordBearer
+from fastapi.exceptions import HTTPException
+from jose import jwt, JWTError
 from db.redis_z import RedisZ
+from db.mysql_z import MySqlZ
 from configs import APP_DIR
+from uuid import uuid4
 from passlib.context import CryptContext
+from configs import SECRET_KEY
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
 def generate_code_image(redis_key):
@@ -72,3 +83,53 @@ def verify_password(plain_password, hashed_password):
 
 def get_password_hash(password):
     return pwd_context.hash(password)
+
+
+def generate_user_unique_code():
+    uuid = ''.join(str(uuid4()).split("-"))
+    return "user_" + ''.join([random.choice(uuid) for _ in range(15)])
+
+
+def create_access_token(data: dict, expire_seconds: Optional[int] = 1800):
+    """ 创建JWT """
+    to_encode = data.copy()
+    expire = time.time() + expire_seconds
+    to_encode.update({"exp": expire})
+    encode_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm="HS256")
+    return encode_jwt
+
+
+def is_active_user(unique_code: str):
+    """ 使用unique_code 从数据库中获取用户 """
+    with MySqlZ() as cursor:
+        cursor.execute(
+            "SELECT `id`,`unique_code` FROM `user_user` WHERE `unique_code`=%s AND `is_active`=1;",
+            (unique_code, )
+        )
+        user_dict = cursor.fetchone()
+    print(user_dict)
+    if user_dict:
+        return True
+    else:
+        return False
+
+
+async def is_user_logged_in(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        print("收到客户端发来的token:", token)
+        payload = jwt.decode(token, SECRET_KEY, algorithms='HS256')
+        unique_code: str = payload.get("unique_code")  # `unique_code`与生成时的对应
+        if unique_code is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    # 从数据库中获取用户
+    if is_active_user(unique_code):
+        return True
+    else:
+        return False

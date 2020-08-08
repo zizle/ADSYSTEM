@@ -1,5 +1,5 @@
 # _*_ coding:utf-8 _*_
-# @File  : initlize_table_scripts.py
+# @File  : initialize_exchange_lib_tables.py
 # @Time  : 2020-07-27 13:12
 # @Author: zizle
 

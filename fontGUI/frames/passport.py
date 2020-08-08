@@ -2,16 +2,17 @@
 # @File  : passport.py
 # @Time  : 2020-07-20 10:49
 # @Author: zizle
+import os
 import uuid
 import json
 from hashlib import md5
 from PySide2.QtWidgets import QApplication, QMessageBox
-from PySide2.QtCore import Signal, QUrl, QTimer
+from PySide2.QtCore import Signal, QUrl, QTimer, QSettings
 from PySide2.QtGui import QPixmap
-from PySide2.QtNetwork import QNetworkRequest
+from PySide2.QtNetwork import QNetworkRequest, QNetworkReply
 from frames.passport_ui import PassportPageUI
 from utils.multipart import generate_multipart_data
-from configs import SERVER
+from configs import SERVER, BASE_DIR
 
 
 class PassportPage(PassportPageUI):
@@ -92,8 +93,6 @@ class PassportPage(PassportPageUI):
             "input_code": self.login_code.text(),
             "code_uuid": self._code_uuid
         }
-        print(text_dict)
-
         multi_data = generate_multipart_data(text_dict)
 
         url = SERVER + "/login/"
@@ -111,10 +110,17 @@ class PassportPage(PassportPageUI):
         reply = self.sender()
         data = reply.readAll().data()
         if reply.error():
-            QMessageBox.information(self, "错误", "登录信息输入有误,请检查后再登录!")
+            message = "用户名或密码错误!"
+            if reply.error() == QNetworkReply.ProtocolInvalidOperationError:
+                message = "验证码错误!"
+            QMessageBox.information(self, "错误", message)
             return
         data = json.loads(data.decode("utf-8"))
-        self.logged_signal.emit(data["phone"])  # 登录成功
+        # 将access_token保存在客户端
+        settings_file_path = os.path.join(BASE_DIR, "classini/app.ini")
+        app_settings = QSettings(settings_file_path, QSettings.IniFormat)
+        app_settings.setValue("TOKEN/token", data["access_token"])
+        self.logged_signal.emit(data["show_username"])  # 登录成功
 
     def user_commit_register(self):
         """ 用户提交注册 """

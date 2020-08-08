@@ -2,7 +2,7 @@
 # @File  : homepage_ui.py
 # @Time  : 2020-07-19 15:12
 # @Author: zizle
-from PySide2.QtWidgets import QWidget, QVBoxLayout, QLabel
+from PySide2.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
 from PySide2.QtCore import Qt
 
 
@@ -15,5 +15,9 @@ class HomepageUI(QWidget):
         label.setAlignment(Qt.AlignCenter)
         label.setStyleSheet("color:rgb(200,20,20);font-size:15px")
         layout.addWidget(label)
+
+        self.is_logged_button = QPushButton("我已登录?", self)
+        layout.addWidget(self.is_logged_button, alignment=Qt.AlignCenter)
+
         self.setLayout(layout)
 
