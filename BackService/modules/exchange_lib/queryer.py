@@ -27,7 +27,7 @@ async def query_czce_daily(query_date: str = Depends(verify_date)):
         cursor.execute(query_sql)
         result = cursor.fetchall()
     keys = OrderedDict({
-        "id": "ID", "date": "日期", "contract": "合约", "pre_settlement": "前结算", "open_price": "开盘价", "highest": "最高价",
+        "id": "ID", "date": "日期", "variety_en": "品种", "contract": "合约", "pre_settlement": "前结算", "open_price": "开盘价", "highest": "最高价",
         "lowest": "最低价", "close_price": "收盘价", "settlement": "结算价","zd_1": "涨跌1", "zd_2": "涨跌2", "trade_volume": "成交量", "empty_volume": "空盘量",
         "increase_volume": "增减量", "trade_price": "成交额", "delivery_price": "交割结算价"
     })

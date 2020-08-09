@@ -13,7 +13,13 @@ from PySide2.QtWidgets import QApplication
 from PySide2.QtCore import QFile, Signal, QObject
 from PySide2.QtNetwork import QNetworkRequest
 from configs import LOCAL_SPIDER_SRC, SERVER, USER_AGENTS
-from utils.characters import full_width_to_half_width, split_zh_en
+from utils.characters import full_width_to_half_width, split_zh_en, split_number_en
+
+
+# 将品种月份修改为品种+4位合约的形式
+def modify_contract_express(contract, current_date):
+    number_en = split_number_en(contract)
+    return current_date[2].join(number_en)
 
 
 class DateValueError(Exception):
@@ -158,6 +164,8 @@ class CZCEParser(QObject):
             "contract", "pre_settlement", "open_price", "highest", "lowest", "close_price", "settlement", "zd_1", "zd_2",
             "trade_volume", "empty_volume", "increase_volume", "trade_price", "delivery_price", "variety_en", "date",
         ]
+        # 将品种月份处理为4位合约(分离字母数字后插入年份的第3个数)
+        xls_df["contract"] = xls_df["contract"].apply(modify_contract_express, args=(data_date,))
         self.parser_finished.emit("解析数据文件成功!", False)
         return xls_df
 
@@ -235,6 +243,7 @@ class CZCEParser(QObject):
                           'short_position_company', 'short_position', 'short_position_increase']
 
         result_df = DataFrame(columns=column_indexes)
+        str_date = self.date.strftime("%Y%m%d")
         # 每个品种数据框
         for variety_en in variety_dict:
             variety_index_range = variety_index_dict[variety_en]
@@ -245,7 +254,6 @@ class CZCEParser(QObject):
             variety_df["contract"] = [variety_en for _ in range(variety_df.shape[0])]
             # print(variety_en, "\n", variety_df)
             result_df = concat([result_df, variety_df])
-
         # 每个合约数据框
         for contract in contract_set:
             contract_index_range = contract_index_dict[contract]
@@ -255,7 +263,8 @@ class CZCEParser(QObject):
             contract_df = self._parser_rank_sub_df(variety_name=variety_dict[variety_key], sub_df=contract_df)
             # 填充品种代码和合约的值
             contract_df["variety_en"] = [variety_key for _ in range(contract_df.shape[0])]
-            contract_df["contract"] = [contract.strip() for _ in range(contract_df.shape[0])]
+            target_contract = modify_contract_express(contract.strip(), str_date)
+            contract_df["contract"] = [target_contract for _ in range(contract_df.shape[0])]
             # print(contract, "\n", contract_df)
             result_df = concat([result_df, contract_df])
         str_date = self.date.strftime("%Y%m%d")

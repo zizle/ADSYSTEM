@@ -171,6 +171,8 @@ class DCEParser(QObject):
         xls_df.columns = ["date", "variety_en", "contract", "pre_settlement", "open_price", "highest", "lowest",
                           "close_price", "settlement", "zd_1", "zd_2", "trade_volume", "empty_volume",
                           "increase_volume", "trade_price"]
+        # 合约改为品种+交割月的形式
+        xls_df["contract"] = xls_df["variety_en"] + xls_df["contract"]
         self.parser_finished.emit("解析数据文件成功!", False)
         return xls_df
 

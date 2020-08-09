@@ -80,7 +80,7 @@ class MainWindow(MainWindowUI):
                 action.triggered.connect(self.select_menu_action)
 
     def user_login(self):
-        """ 跳转登录注册页面"""
+        """ 跳转登录注册页面 """
         login_button = self.sender()
         if login_button.username:
             return
@@ -105,16 +105,25 @@ class MainWindow(MainWindowUI):
         passport_page.logged_signal.connect(user_logged)
         self.setCentralWidget(passport_page)
         self.current_central_widget_name = "登录注册"
+        
+    def show_click_to_login(self):
+        """ 显示点击登录按钮 """
+        self.use_bar.login_button.menu().deleteLater()
+        self.scroll_timer.stop()
+        self.use_bar.login_button.setText("点击登录")
+        setattr(self.use_bar.login_button, 'username', '')
 
-    def user_logout(self):
+        self.set_homepage()  # 退出回到首页
+
+    def user_logout(self, token_expire=False):
         """ 用户退出 """
-        if QMessageBox.Yes == QMessageBox.information(self, "退出", "确定退出登录吗?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No):
-            self.use_bar.login_button.menu().deleteLater()
-            self.scroll_timer.stop()
-            self.use_bar.login_button.setText("点击登录")
-            setattr(self.use_bar.login_button, 'username', '')
-
-            self.set_homepage()  # 退出回到首页
+        if token_expire:
+            self.show_click_to_login()
+        else:
+            if QMessageBox.Yes == QMessageBox.information(
+                self, "退出", "确定退出登录吗?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+            ):
+                self.show_click_to_login()
 
     def select_menu_action(self):
         """ 选择菜单栏中的菜单 """

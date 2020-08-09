@@ -130,6 +130,8 @@ class SHFEParser(QObject):
         # 修改列头，返回
         json_df.columns = ["date", "variety_en", "contract", "pre_settlement", "open_price", "highest", "lowest", "close_price",
                            "settlement", "zd_1", "zd_2", "trade_volume", "empty_volume", "increase_volume"]
+        # 合约等于品种+合约
+        json_df["contract"] = json_df["variety_en"] + json_df["contract"]
         # 处理没有数据或空值=补0
         json_df.replace(to_replace="^\s*$", value=np.nan, regex=True, inplace=True)
         json_df = json_df.fillna(0)
@@ -213,7 +215,6 @@ class SHFEParser(QObject):
         """ 保存日持仓排名到数据库返回 """
         reply = self.sender()
         data = reply.readAll().data()
-        print(data)
         reply.deleteLater()
         if reply.error():
             self.parser_finished.emit("保存上期所{}日持仓排名到服务数据库失败:\n{}".format(self.date.strftime("%Y-%m-%d"), reply.error()), True)

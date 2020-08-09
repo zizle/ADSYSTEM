@@ -28,10 +28,10 @@ class UserBarUI(QWidget):
         self.login_button.setObjectName("loginButton")
         self.logout_button.setObjectName("logoutButton")
         # loginButton::menu-indicator{image:none;}
-        self.setStyleSheet("""
-        #loginButton,#logoutButton{border:none;height:22px}
-        #loginButton:hover{color:rgb(100,160,210)}
-        """)
+        self.setStyleSheet(
+            "#loginButton,#logoutButton{border:none;height:22px}"
+            "#loginButton:hover{color:rgb(100,160,210)}"
+        )
 
 
 class MainWindowUI(QMainWindow):
@@ -40,7 +40,7 @@ class MainWindowUI(QMainWindow):
     def __init__(self, *args, **kwargs):
         super(MainWindowUI, self).__init__(*args, **kwargs)
         self.resize(1080, 720)
-        self.setWindowTitle("分析决策系统2.0")
+        self.setWindowTitle("期货数据分析系统")
         self.setWindowIcon(QIcon("icons/app.png"))
         self.menu_bar = self.menuBar()
         self.use_bar = UserBarUI(parent=self.menu_bar)

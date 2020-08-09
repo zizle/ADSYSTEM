@@ -24,7 +24,9 @@ MAIN_MENUS = [
     {"id": "1", "name": "首页", "logo": "", "children": None},
     {"id": "2", "name": "数据查询", "logo": "", "children": [
         {"id": "2_1", "name": "交易所数据", "logo": "icons/exchange.png", "children": None},
-        {"id": "2_2", "name": "测试开发", "logo": "", "children": None},
+    ]},
+    {"id": "3", "name": "数据分析", "logo": "", "children": [
+        {"id": "3_1", "name": "品种K线", "logo": "", "children": None},
     ]},
     {"id": "-8", "name": "系统设置", "logo": "", "children": [
         {"id": "-8_1", "name": "版本检查", "logo": "icons/update.png", "children": None}

@@ -34,11 +34,10 @@ class Homepage(HomepageUI):
 
     def is_logged_reply(self):
         reply = self.sender()
-        print(reply.error())
         if reply.error() == QNetworkReply.AuthenticationRequiredError:
             reply.deleteLater()
             QMessageBox.information(self, "错误", "登录已过期,需登录才能使用!", QMessageBox.Yes)
+            self.parent().user_logout(token_expire=True)  # 退出登录,主页用户栏显示点击可登录状态
             return
         QMessageBox.information(self, "成功", "登录信息在有效期内!", QMessageBox.Yes)
         reply.deleteLater()
-
