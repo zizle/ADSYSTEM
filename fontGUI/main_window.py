@@ -3,9 +3,10 @@
 # @Time  : 2020-07-19 15:09
 # @Author: zizle
 
-from PySide2.QtWidgets import QApplication, QLabel, QMessageBox, QMenu, QAction
+from PySide2.QtWidgets import QApplication, QLabel, QMessageBox, QMenu
+from PySide2.QtWebEngineWidgets import QWebEngineView
 from PySide2.QtGui import QIcon
-from PySide2.QtCore import QTimer
+from PySide2.QtCore import QTimer, QUrl
 from PySide2.QtNetwork import QNetworkAccessManager
 from main_window_ui import MainWindowUI
 from frames.homepage import Homepage
@@ -138,7 +139,10 @@ class MainWindow(MainWindowUI):
         elif action_id == "2_1":   # 数据查询-交易所数据
             central_widget = ExchangeQuery()
         elif action_id == "3_1":   # 品种K线
-            central_widget = ContractKei()
+            # central_widget = ContractKei()
+            w = QWebEngineView()
+            w.load(QUrl("https://www.baidu.com"))
+            central_widget = w
         elif action_id == "-8_1":  # 检查更新
             p = UpdateDialog(self)
             p.exec_()

@@ -5,6 +5,7 @@
 
 import sys
 from PySide2.QtWidgets import QApplication
+from PySide2.QtWebEngineWidgets import QWebEngineView
 from main_window import MainWindow
 
 app = QApplication([])

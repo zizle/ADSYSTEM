@@ -2,9 +2,11 @@
 # @File  : variety.py
 # @Time  : 2020-08-10 14:14
 # @Author: zizle
+import re
 from collections import OrderedDict
 from fastapi import APIRouter, Query, Body, HTTPException
 from db.mysql_z import MySqlZ
+from db.redis_z import RedisZ
 from pymysql.err import IntegrityError
 from .validate_items import VarietyGroup, ExchangeLib, VarietyItem
 
@@ -23,7 +25,7 @@ async def basic_variety_all():
         all_varieties = cursor.fetchall()
     varieties = OrderedDict()
     for variety_item in all_varieties:
-        variety_item['exchange_lib'] = ExchangeLib[variety_item['exchange_lib']]
+        variety_item['exchange_name'] = ExchangeLib[variety_item['exchange_lib']]
         variety_item['group_name'] = VarietyGroup[variety_item['group_name']]
         if variety_item['group_name'] not in varieties:
             varieties[variety_item['group_name']] = list()
@@ -72,3 +74,28 @@ async def add_basic_variety(
             status_code=400
         )
     return {"message": "添加品种成功!", "new_variety": variety}
+
+
+@variety_router.get("/contracts/", summary="获取某品种下的所有合约")
+async def variety_contract(variety_en: str = Query(...), exchange: ExchangeLib = Query(...)):
+    if not re.match(r'^[A-Z]{1,2}$', variety_en):
+        raise HTTPException(detail="Got an invalid variety_en.", status_code=400)
+    # 从redis获取当前品种的所有合约
+    with RedisZ() as rs:
+        contracts_str = rs.get("{}_contracts".format(variety_en))
+        if not contracts_str:
+            # 查询当前数据下的所有品种,保存到redis,有效期为12h
+            with MySqlZ() as cursor:
+                cursor.execute(
+                    "SELECT `contract` FROM {}_daily "
+                    "WHERE `variety_en`=%s "
+                    "GROUP BY `contract`;".format(exchange.name),
+                    variety_en
+                )
+                contract_indb = cursor.fetchall()
+            contracts_str = ';'.join([item['contract'] for item in contract_indb])
+            rs.set("{}_contracts".format(variety_en), contracts_str, ex=43200)
+    contracts = contracts_str.split(";")
+    contracts.reverse()
+    return {"message": "获取品种合约成功!", "contracts": contracts}
+

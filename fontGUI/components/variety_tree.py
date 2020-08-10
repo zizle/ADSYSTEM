@@ -18,7 +18,7 @@ class VarietyTree(QTreeWidget):
         "能源化工": "icons/chemical.png", "金属产业": "icons/metal.png"
     }
 
-    selected_signal = Signal(str)
+    selected_signal = Signal(str, str)
 
     def __init__(self, *args, **kwargs):
         super(VarietyTree, self).__init__(*args, **kwargs)
@@ -59,6 +59,7 @@ class VarietyTree(QTreeWidget):
                 child = QTreeWidgetItem(tree_item)
                 child.setText(0, child_item["variety_name"])
                 setattr(child, "variety_en", child_item["variety_en"])
+                setattr(child, "exchange_name", child_item["exchange_name"])
                 # child.setIcon(0, QIcon(child_item["logo"]))
                 tree_item.addChild(child)
         reply.deleteLater()
@@ -74,5 +75,5 @@ class VarietyTree(QTreeWidget):
                 tree_item.setExpanded(True)
         elif tree_item.parent():
             item_en = getattr(tree_item, "variety_en")
-            # parent_id = getattr(tree_item.parent(), "id")
-            self.selected_signal.emit(item_en)
+            exchange_name = getattr(tree_item, "exchange_name")
+            self.selected_signal.emit(item_en, exchange_name)

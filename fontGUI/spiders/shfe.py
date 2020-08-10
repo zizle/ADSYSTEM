@@ -112,8 +112,8 @@ class SHFEParser(QObject):
         json_df = DataFrame(source_content['o_curinstrument'])
 
         # 选取PRODUCTID非总计、DELIVERYMONTH非小计的行
-        json_df = json_df[~json_df['PRODUCTID'].str.contains('总计|小计')]  # 选取品种不含有小计和总计的行
-        json_df = json_df[~json_df['DELIVERYMONTH'].str.contains('总计|小计')]  # 选取合约不含有小计和总计的行
+        json_df = json_df[~json_df['PRODUCTID'].str.contains('总计|小计|合计')]  # 选取品种不含有小计和总计合计的行
+        json_df = json_df[~json_df['DELIVERYMONTH'].str.contains('总计|小计|合计')]  # 选取合约不含有小计和总计合计的行
         # 处理空格
         json_df["PRODUCTID"] = json_df["PRODUCTID"].apply(lambda x: x.split("_")[0].upper())
         # json_df["PRODUCTGROUPID"] = json_df["PRODUCTGROUPID"].str.strip().str.upper()

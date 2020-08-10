@@ -2,6 +2,7 @@
 # @File  : variety.py
 # @Time  : 2020-08-10 13:42
 # @Author: zizle
+import re
 import json
 from PySide2.QtWidgets import QApplication, QListWidgetItem, QMessageBox, QTableWidgetItem
 from PySide2.QtGui import QIcon
@@ -83,7 +84,6 @@ class VarietyAdmin(VarietyAdminUI):
             item3.setTextAlignment(Qt.AlignCenter)
             self.variety_table.setItem(row, 3, item3)
 
-
     def add_new_variety(self):
         """ 新建品种与列表显示切换 """
         button = self.sender()
@@ -102,6 +102,9 @@ class VarietyAdmin(VarietyAdminUI):
         belong_exchange = self.opts_widget.belong_exchange.currentText()
         variety_name = self.opts_widget.zh_name.text().strip()
         variety_en = self.opts_widget.en_name.text().strip()
+        if not re.match(r'^[A-Z]{1,2}$', variety_en):
+            QMessageBox.information(self, "错误", "交易代码为1~2个A-Z大写英文字母组成!")
+            return
 
         new_variety = {
             "variety_name": variety_name,
