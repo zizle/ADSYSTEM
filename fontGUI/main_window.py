@@ -14,6 +14,7 @@ from frames.exchange_query import ExchangeQuery
 from frames.contract_kei import ContractKei
 from admin.exchange_spider import ExchangeSpider
 from admin.user import UserAdmin
+from admin.variety import VarietyAdmin
 from popup.update import UpdateDialog
 from utils.characters import half_width_to_full_width
 from configs import MAIN_MENUS
@@ -136,7 +137,7 @@ class MainWindow(MainWindowUI):
             return
         elif action_id == "2_1":   # 数据查询-交易所数据
             central_widget = ExchangeQuery()
-        elif action_id == "2_2":   # 合约K线
+        elif action_id == "3_1":   # 品种K线
             central_widget = ContractKei()
         elif action_id == "-8_1":  # 检查更新
             p = UpdateDialog(self)
@@ -144,8 +145,9 @@ class MainWindow(MainWindowUI):
             return
         elif action_id == "-9_1":
             central_widget = UserAdmin()
-
-        elif action_id == "-9_2":  # 数据抓取
+        elif action_id == "-9_2":  # 品种管理
+            central_widget = VarietyAdmin()
+        elif action_id == "-9_3":  # 数据抓取
             central_widget = ExchangeSpider()
         else:
             print(action.text(), action.__getattribute__("id"))

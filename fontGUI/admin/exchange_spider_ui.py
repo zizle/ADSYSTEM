@@ -6,7 +6,7 @@
 from PySide2.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QSplitter, QLabel, QPushButton, QDateEdit
 from PySide2.QtCore import QMargins, Qt, QDate, QSize
 from PySide2.QtGui import QBrush, QPalette, QPixmap
-from components.tree_widget import ExchangeLibTree
+from components.exchange_tree import ExchangeLibTree
 
 
 class ExchangeSpiderUI(QWidget):

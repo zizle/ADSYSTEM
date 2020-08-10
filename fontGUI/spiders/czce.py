@@ -219,6 +219,8 @@ class CZCEParser(QObject):
             if search_variety:  # 如果找到品种记录下品种和开始行
                 zh_en_variety = search_variety.group(1)
                 variety_name, variety_en = split_zh_en(zh_en_variety)
+                if variety_en == "PTA":
+                    variety_en = "TA"
                 variety_dict[variety_en] = variety_name
                 variety_index_dict[variety_en] = [row_content[0] + 1]
                 is_variety = True
@@ -231,6 +233,7 @@ class CZCEParser(QObject):
                 pass  # 无则继续
             if search_sum and (variety_en or contract_en):  # 如果找到合计行，记录下当前品种的结束行
                 if is_variety:
+
                     variety_index_dict[variety_en].append(row_content[0])
                 else:
                     contract_index_dict[contract_en].append(row_content[0])
@@ -257,7 +260,8 @@ class CZCEParser(QObject):
         # 每个合约数据框
         for contract in contract_set:
             contract_index_range = contract_index_dict[contract]
-            variety_key = 'PTA' if contract[:2] == 'TA' else contract[:2]
+            # variety_key = 'PTA' if contract[:2] == 'TA' else contract[:2]
+            variety_key = contract[:2]
             # print(variety_dict[variety_key], contract, contract_index_range)
             contract_df = xls_df.iloc[contract_index_range[0]:contract_index_range[1] + 1, :]
             contract_df = self._parser_rank_sub_df(variety_name=variety_dict[variety_key], sub_df=contract_df)

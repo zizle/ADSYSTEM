@@ -4,7 +4,7 @@
 # @Author: zizle
 from PySide2.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QSplitter, QDateEdit, QLabel, QTableWidget, QPushButton, QSpinBox, QAbstractItemView)
 from PySide2.QtCore import QDate, QMargins, Qt
-from components.tree_widget import ExchangeLibTree
+from components.exchange_tree import ExchangeLibTree
 
 
 class ExchangeQueryUI(QWidget):
