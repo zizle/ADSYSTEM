@@ -345,6 +345,8 @@ class CZCEParser(QObject):
                 has_new_variety = True
                 zh_en_variety = search_v.group(1)
                 variety_name, variety_en = split_zh_en(zh_en_variety)
+                if variety_en == "PTA":
+                    variety_en = "TA"
                 variety_dict[variety_en] = variety_name
                 variety_index_dict[variety_en] = [row_content[0] + 1]
             else:

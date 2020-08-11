@@ -139,10 +139,7 @@ class MainWindow(MainWindowUI):
         elif action_id == "2_1":   # 数据查询-交易所数据
             central_widget = ExchangeQuery()
         elif action_id == "3_1":   # 品种K线
-            # central_widget = ContractKei()
-            w = QWebEngineView()
-            w.load(QUrl("https://www.baidu.com"))
-            central_widget = w
+            central_widget = ContractKei()
         elif action_id == "-8_1":  # 检查更新
             p = UpdateDialog(self)
             p.exec_()

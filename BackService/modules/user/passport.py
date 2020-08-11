@@ -106,7 +106,6 @@ async def login_for_access_token(
     # 得到通过密码验证的用户,签发token证书
     access_token = verify.create_access_token(data={"unique_code": user.unique_code})
     show_username = user.username if user.username else user.phone
-    print(show_username)
     return {"show_username": show_username, "access_token": access_token, "token_type": "bearer"}
 
 

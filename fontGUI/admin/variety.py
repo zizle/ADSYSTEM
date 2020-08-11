@@ -126,7 +126,10 @@ class VarietyAdmin(VarietyAdminUI):
         reply = self.sender()
         if reply.error() == QNetworkReply.ProtocolInvalidOperationError:
             QMessageBox.information(self, "错误", "添加品种失败:\n名称和交易代码联合完全重复了!")
+        elif reply.error() == QNetworkReply.InternalServerError:
+            QMessageBox.information(self, "错误", "服务器发生了个错误,添加失败!")
         else:
-            QMessageBox.information(self, "成功", "添加新品种成功!")
+            if reply.error() == QNetworkReply.NoError:
+                QMessageBox.information(self, "成功", "添加新品种成功!")
         reply.deleteLater()
 

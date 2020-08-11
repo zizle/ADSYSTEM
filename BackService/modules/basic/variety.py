@@ -7,7 +7,7 @@ from collections import OrderedDict
 from fastapi import APIRouter, Query, Body, HTTPException
 from db.mysql_z import MySqlZ
 from db.redis_z import RedisZ
-from pymysql.err import IntegrityError
+from pymysql.err import IntegrityError, ProgrammingError
 from .validate_items import VarietyGroup, ExchangeLib, VarietyItem
 
 variety_router = APIRouter()
@@ -72,6 +72,11 @@ async def add_basic_variety(
         raise HTTPException(
             detail="variety_name and variety_en team repeated!",
             status_code=400
+        )
+    except ProgrammingError:
+        raise HTTPException(
+            detail="The app inner error.created variety fail!",
+            status_code=500
         )
     return {"message": "添加品种成功!", "new_variety": variety}
 

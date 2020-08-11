@@ -27,7 +27,11 @@ class ContractKeiUI(QSplitter):
 
         self.confirm_button = QPushButton("确定", self)
         opts_layout.addWidget(self.confirm_button)
-        opts_layout.addStretch()
+        opts_layout.addStretch(1)
+
+        self.main_contract = QPushButton("主力合约", self)
+        opts_layout.addWidget(self.main_contract)
+        opts_layout.addStretch(3)
 
         right_layout.addLayout(opts_layout)
 

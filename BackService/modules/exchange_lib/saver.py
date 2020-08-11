@@ -30,25 +30,19 @@ async def save_czce_daily(
         current_date: str = Depends(verify_date)
 ):
     data_json = jsonable_encoder(sources)
-    df = DataFrame.from_dict(data_json)
-    if df.columns.values.tolist() != ["date", "variety_en", "contract","open_price", "highest", "lowest", "close_price",
-                                      "settlement", "zd_1", "zd_2", "trade_volume", "empty_volume", "pre_settlement",
-                                      "increase_volume", "trade_price", "delivery_price"]:
-        logger.error("保存郑商所日交易行情数据错误:数据格式有误.")
-        raise HTTPException(status_code=400, detail="数据格式有误...无法保存.")
-
     save_sql = "INSERT INTO `czce_daily` " \
-               "(`date`,`variety_en`,`contract`,`pre_settlement`,`open_price`,`highest`,`lowest`," \
-               "`close_price`,`settlement`,`zd_1`,`zd_2`,`trade_volume`,`empty_volume`,`increase_volume`," \
-               "`trade_price`,`delivery_price`) " \
-               "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"
+               "(`date`,`variety_en`,`contract`,`open_price`,`highest`,`lowest`,`close_price`," \
+               "`settlement`,`zd_1`,`zd_2`,`trade_volume`,`empty_volume`,`pre_settlement`," \
+               "`increase_volume`,`trade_price`,`delivery_price`) " \
+               "VALUES (%(date)s,%(variety_en)s,%(contract)s,%(open_price)s,%(highest)s,%(lowest)s,%(close_price)s," \
+               "%(settlement)s,%(zd_1)s,%(zd_2)s,%(trade_volume)s,%(empty_volume)s,%(pre_settlement)s," \
+               "%(increase_volume)s,%(trade_price)s,%(delivery_price)s);"
     with MySqlZ() as cursor:
         # 查询数据时间
         cursor.execute("SELECT `id`, `date` FROM `czce_daily` WHERE `date`=%s;" % current_date)
         fetch_one = cursor.fetchone()
         message = "{}郑商所日交易数据已经存在,请不要重复保存!".format(current_date)
         if not fetch_one:
-            data_json = df.values.tolist()
             count = cursor.executemany(save_sql, data_json)
             message = "保存{}郑商所日交易数据成功!\n新增数量:{}".format(current_date, count)
     return {"message": message}
@@ -60,27 +54,22 @@ async def save_czce_rank(
         current_date: str = Depends(verify_date)
 ):
     data_json = jsonable_encoder(sources)
-    df = DataFrame.from_dict(data_json)
-    if df.columns.values.tolist() != ['date', 'variety_en', 'contract', 'rank',
-                                      'trade_company', 'trade', 'trade_increase',
-                                      'long_position_company', 'long_position', 'long_position_increase',
-                                      'short_position_company', 'short_position', 'short_position_increase']:
-        logger.error("保存郑商所日持仓排名数据错误:数据格式有误.")
-        raise HTTPException(status_code=400, detail="数据格式有误...无法保存.")
 
     save_sql = "INSERT INTO `czce_rank` " \
                "(`date`,`variety_en`,`contract`,`rank`," \
                "`trade_company`,`trade`,`trade_increase`," \
                "`long_position_company`,`long_position`,`long_position_increase`," \
                "`short_position_company`,`short_position`,`short_position_increase`) " \
-               "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"
+               "VALUES (%(date)s,%(variety_en)s,%(contract)s,%(rank)s," \
+               "%(trade_company)s,%(trade)s,%(trade_increase)s," \
+               "%(long_position_company)s,%(long_position)s,%(long_position_increase)s," \
+               "%(short_position_company)s,%(short_position)s,%(short_position_increase)s);"
     with MySqlZ() as cursor:
         # 查询数据时间
         cursor.execute("SELECT `id`, `date` FROM `czce_rank` WHERE `date`=%s;" % current_date)
         fetch_one = cursor.fetchone()
         message = "{}郑商所日持仓排名数据已经存在,请不要重复保存!".format(current_date)
         if not fetch_one:
-            data_json = df.values.tolist()
             count = cursor.executemany(save_sql, data_json)
             message = "保存{}郑商所日持仓排名数据成功!\n新增数量:{}".format(current_date, count)
     return {"message": message}
@@ -92,23 +81,17 @@ async def save_czce_receipt(
         current_date: str = Depends(verify_date)
 ):
     data_json = jsonable_encoder(sources)
-    df = DataFrame.from_dict(data_json)
-    if df.columns.values.tolist() != ['date', 'variety_en', 'warehouse', 'receipt', 'receipt_increase',
-                                      'premium_discount']:
-        logger.error("保存郑商所仓单日报数据错误:数据格式有误.")
-        raise HTTPException(status_code=400, detail="数据格式有误...无法保存.")
-
     save_sql = "INSERT INTO `czce_receipt` " \
                "(`date`,`variety_en`,`warehouse`," \
                "`receipt`,`receipt_increase`,`premium_discount`) " \
-               "VALUES (%s,%s,%s,%s,%s,%s);"
+               "VALUES (%(date)s,%(variety_en)s,%(warehouse)s," \
+               "%(receipt)s,%(receipt_increase)s,%(premium_discount)s);"
     with MySqlZ() as cursor:
         # 查询数据时间
         cursor.execute("SELECT `id`, `date` FROM `czce_receipt` WHERE `date`=%s;" % current_date)
         fetch_one = cursor.fetchone()
         message = "{}郑商所仓单日报数据已经存在,请不要重复保存!".format(current_date)
         if not fetch_one:
-            data_json = df.values.tolist()
             count = cursor.executemany(save_sql, data_json)
             message = "保存{}郑商所仓单日报数据成功!\n新增数量:{}".format(current_date, count)
     return {"message": message}
@@ -120,24 +103,20 @@ async def save_shfe_daily(
         current_date: str = Depends(verify_date)
 ):
     data_json = jsonable_encoder(sources)
-    df = DataFrame.from_dict(data_json)
-    if df.columns.values.tolist() != ["date", "variety_en", "contract",
-                                      "open_price", "highest", "lowest", "close_price", "settlement", "zd_1", "zd_2",
-                                      "trade_volume", "empty_volume", "pre_settlement", "increase_volume"]:
-        logger.error("保存上期所日交易行情数据错误:数据格式有误.")
-        raise HTTPException(status_code=400, detail="数据格式有误...无法保存.")
 
     save_sql = "INSERT INTO `shfe_daily` " \
-               "(`date`,`variety_en`,`contract`,`pre_settlement`,`open_price`,`highest`,`lowest`," \
-               "`close_price`,`settlement`,`zd_1`,`zd_2`,`trade_volume`,`empty_volume`,`increase_volume`) " \
-               "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"
+               "(`date`,`variety_en`,`contract`," \
+               "`open_price`,`highest`,`lowest`,`close_price`,`settlement`,`zd_1`,`zd_2`," \
+               "`trade_volume`,`empty_volume`,`pre_settlement`,`increase_volume`) " \
+               "VALUES (%(date)s,%(variety_en)s,%(contract)s," \
+               "%(open_price)s,%(highest)s,%(lowest)s,%(close_price)s,%(settlement)s,%(zd_1)s,%(zd_2)s," \
+               "%(trade_volume)s,%(empty_volume)s,%(pre_settlement)s,%(increase_volume)s);"
     with MySqlZ() as cursor:
         # 查询数据时间
         cursor.execute("SELECT `id`, `date` FROM `shfe_daily` WHERE `date`=%s;" % current_date)
         fetch_one = cursor.fetchone()
         message = "{}上期所日交易数据已经存在,请不要重复保存!".format(current_date)
         if not fetch_one:
-            data_json = df.values.tolist()
             count = cursor.executemany(save_sql, data_json)
             message = "保存{}上期所日交易数据成功!\n新增数量:{}".format(current_date, count)
     return {"message": message}
@@ -149,27 +128,22 @@ async def save_shfe_rank(
         current_date: str = Depends(verify_date)
 ):
     data_json = jsonable_encoder(sources)
-    df = DataFrame.from_dict(data_json)
-    if df.columns.values.tolist() != ['date', 'variety_en', 'contract', 'rank',
-                                      'trade_company', 'trade', 'trade_increase',
-                                      'long_position_company', 'long_position', 'long_position_increase',
-                                      'short_position_company', 'short_position', 'short_position_increase']:
-        logger.error("保存上期所日持仓排名数据错误:数据格式有误.")
-        raise HTTPException(status_code=400, detail="数据格式有误...无法保存.")
 
     save_sql = "INSERT INTO `shfe_rank` " \
                "(`date`,`variety_en`,`contract`,`rank`," \
                "`trade_company`,`trade`,`trade_increase`," \
                "`long_position_company`,`long_position`,`long_position_increase`," \
                "`short_position_company`,`short_position`,`short_position_increase`) " \
-               "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"
+               "VALUES (%(date)s,%(variety_en)s,%(contract)s,%(rank)s," \
+               "%(trade_company)s,%(trade)s,%(trade_increase)s," \
+               "%(long_position_company)s,%(long_position)s,%(long_position_increase)s," \
+               "%(short_position_company)s,%(short_position)s,%(short_position_increase)s);"
     with MySqlZ() as cursor:
         # 查询数据时间
         cursor.execute("SELECT `id`, `date` FROM `shfe_rank` WHERE `date`=%s;" % current_date)
         fetch_one = cursor.fetchone()
         message = "{}上期所日持仓排名数据已经存在,请不要重复保存!".format(current_date)
         if not fetch_one:
-            data_json = df.values.tolist()
             count = cursor.executemany(save_sql, data_json)
             message = "保存{}上期所日持仓排名数据成功!\n新增数量:{}".format(current_date, count)
     return {"message": message}
@@ -181,24 +155,18 @@ async def save_cffex_daily(
         current_date: str = Depends(verify_date)
 ):
     data_json = jsonable_encoder(sources)
-    df = DataFrame.from_dict(data_json)
-    if df.columns.values.tolist() != ["date", "variety_en", "contract", "open_price", "highest", "lowest",
-                                      "close_price", "settlement", "zd_1", "zd_2", "trade_volume", "empty_volume",
-                                      "trade_price"]:
-        logger.error("保存中金所日交易行情数据错误:数据格式有误.")
-        raise HTTPException(status_code=400, detail="数据格式有误...无法保存.")
 
     save_sql = "INSERT INTO `cffex_daily` " \
                "(`date`,`variety_en`,`contract`,`open_price`,`highest`,`lowest`," \
-               "`close_price`,`settlement`,`zd_1`,`zd_2`,`trade_volume`,`trade_price`,`empty_volume`) " \
-               "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"
+               "`close_price`,`settlement`,`zd_1`,`zd_2`,`trade_volume`,`empty_volume`,`trade_price`) " \
+               "VALUES (%(date)s,%(variety_en)s,%(contract)s,%(open_price)s,%(highest)s,%(lowest)s," \
+               "%(close_price)s,%(settlement)s,%(zd_1)s,%(zd_2)s,%(trade_volume)s,%(empty_volume)s,%(trade_price)s);"
     with MySqlZ() as cursor:
         # 查询数据时间
         cursor.execute("SELECT `id`, `date` FROM `cffex_daily` WHERE `date`=%s;" % current_date)
         fetch_one = cursor.fetchone()
         message = "{}中金所日交易数据已经存在,请不要重复保存!".format(current_date)
         if not fetch_one:
-            data_json = df.values.tolist()
             count = cursor.executemany(save_sql, data_json)
             message = "保存{}中金所日交易数据成功!\n新增数量:{}".format(current_date, count)
     return {"message": message}
@@ -210,27 +178,22 @@ async def save_cffex_rank(
         current_date: str = Depends(verify_date)
 ):
     data_json = jsonable_encoder(sources)
-    df = DataFrame.from_dict(data_json)
-    if df.columns.values.tolist() != ['date', 'variety_en', 'contract', 'rank',
-                                      'trade_company', 'trade', 'trade_increase',
-                                      'long_position_company', 'long_position', 'long_position_increase',
-                                      'short_position_company', 'short_position', 'short_position_increase']:
-        logger.error("保存中金所日持仓排名数据错误:数据格式有误.")
-        raise HTTPException(status_code=400, detail="数据格式有误...无法保存.")
 
     save_sql = "INSERT INTO `cffex_rank` " \
                "(`date`,`variety_en`,`contract`,`rank`," \
                "`trade_company`,`trade`,`trade_increase`," \
                "`long_position_company`,`long_position`,`long_position_increase`," \
                "`short_position_company`,`short_position`,`short_position_increase`) " \
-               "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"
+               "VALUES (%(date)s,%(variety_en)s,%(contract)s,%(rank)s," \
+               "%(trade_company)s,%(trade)s,%(trade_increase)s," \
+               "%(long_position_company)s,%(long_position)s,%(long_position_increase)s," \
+               "%(short_position_company)s,%(short_position)s,%(short_position_increase)s);"
     with MySqlZ() as cursor:
         # 查询数据时间
         cursor.execute("SELECT `id`, `date` FROM `cffex_rank` WHERE `date`=%s;" % current_date)
         fetch_one = cursor.fetchone()
         message = "{}中金所日持仓排名数据已经存在,请不要重复保存!".format(current_date)
         if not fetch_one:
-            data_json = df.values.tolist()
             count = cursor.executemany(save_sql, data_json)
             message = "保存{}中金所日持仓排名数据成功!\n新增数量:{}".format(current_date, count)
     return {"message": message}
@@ -242,26 +205,22 @@ async def save_dce_daily(
         current_date: str = Depends(verify_date)
 ):
     data_json = jsonable_encoder(sources)
-    df = DataFrame.from_dict(data_json)
-    if df.columns.values.tolist() != ["date", "variety_en", "contract",
-                                      "open_price", "highest", "lowest", "close_price",
-                                      "settlement", "zd_1", "zd_2", "trade_volume", "empty_volume",
-                                      "pre_settlement", "increase_volume","trade_price"]:
-        logger.error("保存大商所日交易行情数据错误:数据格式有误.")
-        raise HTTPException(status_code=400, detail="数据格式有误...无法保存.")
 
     save_sql = "INSERT INTO `dce_daily` " \
-               "(`date`,`variety_en`,`contract`,`pre_settlement`,`open_price`,`highest`,`lowest`," \
-               "`close_price`,`settlement`,`zd_1`,`zd_2`,`trade_volume`,`empty_volume`,`increase_volume`," \
-               "`trade_price`) " \
-               "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"
+               "(`date`,`variety_en`,`contract`," \
+               "`open_price`,`highest`,`lowest`,`close_price`," \
+               "`settlement`,`zd_1`,`zd_2`,`trade_volume`,`empty_volume`," \
+               "`pre_settlement`,`increase_volume`,`trade_price`) " \
+               "VALUES (%(date)s,%(variety_en)s,%(contract)s," \
+               "%(open_price)s,%(highest)s,%(lowest)s,%(close_price)s," \
+               "%(settlement)s,%(zd_1)s,%(zd_2)s,%(trade_volume)s,%(empty_volume)s," \
+               "%(pre_settlement)s,%(increase_volume)s,%(trade_price)s);"
     with MySqlZ() as cursor:
         # 查询数据时间
         cursor.execute("SELECT `id`, `date` FROM `dce_daily` WHERE `date`=%s;" % current_date)
         fetch_one = cursor.fetchone()
         message = "{}大商所日交易数据已经存在,请不要重复保存!".format(current_date)
         if not fetch_one:
-            data_json = df.values.tolist()
             count = cursor.executemany(save_sql, data_json)
             message = "保存{}大商所日交易数据成功!\n新增数量:{}".format(current_date, count)
     return {"message": message}
@@ -273,27 +232,21 @@ async def save_dce_rank(
         current_date: str = Depends(verify_date)
 ):
     data_json = jsonable_encoder(sources)
-    df = DataFrame.from_dict(data_json)
-    if df.columns.values.tolist() != ['date', 'variety_en', 'contract', 'rank',
-                                      'trade_company', 'trade', 'trade_increase',
-                                      'long_position_company', 'long_position', 'long_position_increase',
-                                      'short_position_company', 'short_position', 'short_position_increase']:
-        logger.error("保存大商所日持仓排名数据错误:数据格式有误.")
-        raise HTTPException(status_code=400, detail="数据格式有误...无法保存.")
-
     save_sql = "INSERT INTO `dce_rank` " \
                "(`date`,`variety_en`,`contract`,`rank`," \
                "`trade_company`,`trade`,`trade_increase`," \
                "`long_position_company`,`long_position`,`long_position_increase`," \
                "`short_position_company`,`short_position`,`short_position_increase`) " \
-               "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"
+               "VALUES (%(date)s,%(variety_en)s,%(contract)s,%(rank)s," \
+               "%(trade_company)s,%(trade)s,%(trade_increase)s," \
+               "%(long_position_company)s,%(long_position)s,%(long_position_increase)s," \
+               "%(short_position_company)s,%(short_position)s,%(short_position_increase)s);"
     with MySqlZ() as cursor:
         # 查询数据时间
         cursor.execute("SELECT `id`, `date` FROM `dce_rank` WHERE `date`=%s;" % current_date)
         fetch_one = cursor.fetchone()
         message = "{}大商所日持仓排名数据已经存在,请不要重复保存!".format(current_date)
         if not fetch_one:
-            data_json = df.values.tolist()
             count = cursor.executemany(save_sql, data_json)
             message = "保存{}大商所日持仓排名数据成功!\n新增数量:{}".format(current_date, count)
     return {"message": message}
