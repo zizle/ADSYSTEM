@@ -26,7 +26,8 @@ MAIN_MENUS = [
         {"id": "2_1", "name": "交易所数据", "logo": "icons/exchange.png", "children": None},
     ]},
     {"id": "3", "name": "数据分析", "logo": "", "children": [
-        {"id": "3_1", "name": "品种K线", "logo": "icons/kei_line.png", "children": None},
+        {"id": "3_1", "name": "合约K线", "logo": "icons/kei_line.png", "children": None},
+        {"id": "3_2", "name": "持仓分析", "logo": "icons/empty_volume.png", "children": None},
     ]},
     {"id": "-8", "name": "系统设置", "logo": "", "children": [
         {"id": "-8_1", "name": "版本检查", "logo": "icons/update.png", "children": None}

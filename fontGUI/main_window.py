@@ -4,15 +4,15 @@
 # @Author: zizle
 
 from PySide2.QtWidgets import QApplication, QLabel, QMessageBox, QMenu
-from PySide2.QtWebEngineWidgets import QWebEngineView
 from PySide2.QtGui import QIcon
-from PySide2.QtCore import QTimer, QUrl
+from PySide2.QtCore import QTimer
 from PySide2.QtNetwork import QNetworkAccessManager
 from main_window_ui import MainWindowUI
 from frames.homepage import Homepage
 from frames.passport import PassportPage
 from frames.exchange_query import ExchangeQuery
 from frames.contract_kei import ContractKei
+from frames.empty_volume import EmptyVolume
 from admin.exchange_spider import ExchangeSpider
 from admin.user import UserAdmin
 from admin.variety import VarietyAdmin
@@ -140,6 +140,8 @@ class MainWindow(MainWindowUI):
             central_widget = ExchangeQuery()
         elif action_id == "3_1":   # 品种K线
             central_widget = ContractKei()
+        elif action_id == "3_2":
+            central_widget = EmptyVolume()  # 合约持仓分析
         elif action_id == "-8_1":  # 检查更新
             p = UpdateDialog(self)
             p.exec_()

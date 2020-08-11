@@ -1,20 +1,20 @@
 # _*_ coding:utf-8 _*_
-# @File  : contract_kei_ui.py
-# @Time  : 2020-08-07 14:26
+# @File  : empty_volume_ui.py
+# @Time  : 2020-08-11 21:06
 # @Author: zizle
 
-from PySide2.QtWidgets import QWidget, QSplitter, QVBoxLayout, QLabel, QComboBox, QHBoxLayout, QPushButton
+""" 持仓分析界面 """
+from PySide2.QtWidgets import QSplitter, QWidget, QVBoxLayout, QHBoxLayout, QComboBox, QLabel, QPushButton
 from PySide2.QtWebEngineWidgets import QWebEngineView
-from PySide2.QtCore import Qt, QMargins, QUrl
+from PySide2.QtCore import Qt, QMargins
 from components.variety_tree import VarietyTree
-from components.contract_option import ContractSelector
 
 
-class ContractKeiUI(QSplitter):
-    """ 合约K线界面 """
+class EmptyVolumeUI(QSplitter):
     def __init__(self, *args, **kwargs):
-        super(ContractKeiUI, self).__init__(*args, **kwargs)
+        super(EmptyVolumeUI, self).__init__(*args, **kwargs)
         self.variety_tree = VarietyTree(self)
+
         self.addWidget(self.variety_tree)
 
         self.right_widget = QWidget(self)
