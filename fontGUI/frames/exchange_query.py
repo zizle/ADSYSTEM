@@ -30,6 +30,7 @@ class ExchangeQuery(ExchangeQueryUI):
         self.current_exchange = None
         self.current_action = None
         self.exchange_tree.selected_signal.connect(self.selected_action)       # 树控件点击事件
+        self.exchange_tree.unselected_signal.connect(self.unselected_any)      # 没有选择项目
         self.query_button.clicked.connect(self.query_target_data)              # 查询合约详情数据
         self.query_variety_sum_button.clicked.connect(self.query_variety_sum)  # 查询品种合计数
 
@@ -37,6 +38,7 @@ class ExchangeQuery(ExchangeQueryUI):
         """ 是否允许查询判断函数 """
         self.tip_label.show()
         if self.current_exchange is None or self.current_action is None:
+            self.tip_label.setText("左侧选择想要查询的数据类别再进行查询.")
             return False
         else:
             self.tip_label.setText("正在查询相关数据···")
@@ -46,10 +48,15 @@ class ExchangeQuery(ExchangeQueryUI):
         """ 目录树点击信号 """
         self.current_exchange = exchange
         self.current_action = action
-        if self.current_action != "rank":
-            self.rank_select.setDisabled(True)
+        if self.current_action == "rank":
+            self.rank_select.show()
         else:
-            self.rank_select.setDisabled(False)
+            self.rank_select.hide()
+
+    def unselected_any(self):
+        """ 没有选择项目 """
+        self.current_exchange = None
+        self.current_action = None
 
     def query_target_data(self):
         """ 点击确定查询合约详情目标数据 """

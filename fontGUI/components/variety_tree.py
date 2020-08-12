@@ -19,6 +19,7 @@ class VarietyTree(QTreeWidget):
     }
 
     selected_signal = Signal(str, str)
+    unselected_signal = Signal()
 
     def __init__(self, *args, **kwargs):
         super(VarietyTree, self).__init__(*args, **kwargs)
@@ -73,6 +74,7 @@ class VarietyTree(QTreeWidget):
                 tree_item.setExpanded(False)
             else:
                 tree_item.setExpanded(True)
+            self.unselected_signal.emit()
         elif tree_item.parent():
             item_en = getattr(tree_item, "variety_en")
             exchange_name = getattr(tree_item, "exchange_name")

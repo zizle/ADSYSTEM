@@ -3,7 +3,7 @@
 # @Time  : 2020-07-23 15:46
 # @Author: zizle
 from PySide2.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QSplitter, QDateEdit, QLabel, QTableWidget, QPushButton, QSpinBox, QAbstractItemView)
-from PySide2.QtCore import QDate, QMargins, Qt
+from PySide2.QtCore import QDate, QMargins, Qt, QTime
 from components.exchange_tree import ExchangeLibTree
 
 
@@ -25,9 +25,14 @@ class ExchangeQueryUI(QWidget):
         show_layout = QVBoxLayout()
         show_layout.setContentsMargins(QMargins(2, 2, 0, 0))
 
-        action_layout = QHBoxLayout()  # 选择日期的layout
+        action_layout = QHBoxLayout()                       # 选择日期的layout
         action_layout.addWidget(QLabel("选择日期:", self))
-        self.query_date_edit = QDateEdit(QDate.currentDate(), self)
+        initialize_date = QDate.currentDate()
+        if QTime.currentTime() < QTime(15, 50, 00):         # 小于15:50分时默认为前一天
+            initialize_date = initialize_date.addDays(-1)
+        while initialize_date.dayOfWeek() > 5:              # 当为周末时往前推日期
+            initialize_date = initialize_date.addDays(-1)
+        self.query_date_edit = QDateEdit(initialize_date, self)
         self.query_date_edit.setCalendarPopup(True)
         self.query_date_edit.setDisplayFormat("yyyy-MM-dd")
         action_layout.addWidget(self.query_date_edit)
@@ -36,13 +41,14 @@ class ExchangeQueryUI(QWidget):
         self.query_button.setCursor(Qt.PointingHandCursor)
         action_layout.addWidget(self.query_button)
 
-        action_layout.addWidget(QLabel("前", self))
         self.rank_select = QSpinBox(self)
         self.rank_select.setMinimum(1)
         self.rank_select.setMaximum(20)
         self.rank_select.setValue(20)
+        self.rank_select.setPrefix("前 ")
+        self.rank_select.setSuffix(" 名")
+        self.rank_select.hide()
         action_layout.addWidget(self.rank_select)
-        action_layout.addWidget(QLabel("名", self))
 
         self.query_variety_sum_button = QPushButton("品种合计", self)
         self.query_variety_sum_button.setCursor(Qt.PointingHandCursor)
@@ -52,7 +58,7 @@ class ExchangeQueryUI(QWidget):
 
         show_layout.addLayout(action_layout)
 
-        self.tip_label = QLabel("左侧选择想要查询的数据再进行查询.", self)
+        self.tip_label = QLabel("左侧选择想要查询的数据类别再进行查询.", self)
         self.tip_label.setAlignment(Qt.AlignCenter)
         self.tip_label.setWordWrap(True)
         self.tip_label.hide()
@@ -63,6 +69,7 @@ class ExchangeQueryUI(QWidget):
         self.show_table.setSelectionBehavior(QAbstractItemView.SelectRows)  # 选择为一行
         self.show_table.setFocusPolicy(Qt.NoFocus)                          # 去选中时的虚线框
         self.show_table.setAlternatingRowColors(True)                       # 交替行颜色
+        self.show_table.horizontalHeader().setDefaultSectionSize(120)       # 默认的标题头宽
         show_layout.addWidget(self.show_table)
 
         self.show_widget.setLayout(show_layout)

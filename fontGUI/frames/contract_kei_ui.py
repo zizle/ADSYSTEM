@@ -7,7 +7,6 @@ from PySide2.QtWidgets import QWidget, QSplitter, QVBoxLayout, QLabel, QComboBox
 from PySide2.QtWebEngineWidgets import QWebEngineView
 from PySide2.QtCore import Qt, QMargins, QUrl
 from components.variety_tree import VarietyTree
-from components.contract_option import ContractSelector
 
 
 class ContractKeiUI(QSplitter):

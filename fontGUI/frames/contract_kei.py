@@ -3,7 +3,7 @@
 # @Time  : 2020-08-07 14:26
 # @Author: zizle
 import json
-from PySide2.QtWidgets import QApplication, QDialog, QHBoxLayout
+from PySide2.QtWidgets import QApplication
 from PySide2.QtNetwork import QNetworkRequest
 from PySide2.QtWebChannel import QWebChannel
 from PySide2.QtCore import QUrl

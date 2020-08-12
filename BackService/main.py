@@ -8,7 +8,7 @@ from routers import router
 
 app = FastAPI()
 
-app.mount("/download-files/", StaticFiles(directory="E:/ADSCLIENTS/"), name="clientUpdate")
+app.mount("/download-files/", StaticFiles(directory="F:/ADSCLIENTS/"), name="clientUpdate")
 
 
 @app.get("/", tags=["主页"])
@@ -16,3 +16,8 @@ async def index():
     return {"message": "The Analysis Decision System 2.0 Service."}
 
 app.include_router(router)
+
+
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)

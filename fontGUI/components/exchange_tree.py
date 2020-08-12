@@ -11,6 +11,7 @@ from PySide2.QtGui import QIcon
 class ExchangeLibTree(QTreeWidget):
     """ 自定义树控件 """
     selected_signal = Signal(str, str)
+    unselected_signal = Signal()
 
     def __init__(self, *args, **kwargs):
         super(ExchangeLibTree, self).__init__(*args, **kwargs)
@@ -85,6 +86,7 @@ class ExchangeLibTree(QTreeWidget):
             else:
                 tree_item.setExpanded(True)
                 # tree_item.setIcon(0, QIcon("icons/arrow_bottom.png"))
+            self.unselected_signal.emit()
         elif tree_item.parent():
             item_id = getattr(tree_item, "id")
             parent_id = getattr(tree_item.parent(), "id")
