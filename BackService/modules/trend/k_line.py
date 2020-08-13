@@ -36,13 +36,11 @@ async def variety_main_contract(variety_en: str = Query(...), exchange: Exchange
     with MySqlZ() as cursor:
         cursor.execute(
             "SELECT t.date,t.variety_en,t.contract,t.open_price,t.close_price,t.highest,t.lowest "
-            "FROM {}_daily AS t,"
-            "(SELECT max(empty_volume) AS max_empty_volume FROM {}_daily WHERE `variety_en`=%s GROUP BY `date`) AS main_contract "
-            "WHERE t.empty_volume=main_contract.max_empty_volume AND t.variety_en=%s "
-            "ORDER BY t.date;".format(exchange.name, exchange.name),
-            (variety_en, variety_en)
+            "FROM (SELECT date,variety_en,contract,open_price,close_price,highest,lowest "
+            "FROM {}_daily WHERE variety_en=%s "
+            "ORDER BY empty_volume DESC limit 999999999) AS t "
+            "GROUP BY t.date;".format(exchange.name),
+            (variety_en,)
         )
         data = cursor.fetchall()
-    for i in data:
-        print(i)
     return {"message": "查询主力合约数据成功!", "data": data}
