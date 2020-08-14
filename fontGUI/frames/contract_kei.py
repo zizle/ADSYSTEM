@@ -30,16 +30,16 @@ class ContractKei(ContractKeiUI):
         self.variety_tree.selected_signal.connect(self.click_variety)              # 选择品种请求当前品种的合约
         self.confirm_button.clicked.connect(self.get_kline_data)                   # 确定获取品种下的K线数据
 
-    def click_variety(self, variety_en, exchange_name):
+    def click_variety(self, variety_en, exchange_lib):
         """ 点击选择品种 """
         # 赋值类属性
         self.current_variety = variety_en
-        self.current_exchange = exchange_name
+        self.current_exchange = exchange_lib
         self.contract_combobox.clear()  # 清空合约选择下拉项
         # 发送请求获取当前品种所有交割月份合约
         app = QApplication.instance()
         network_manager = getattr(app, "_network")
-        url = SERVER + "contracts/?variety_en={}&exchange={}".format(variety_en, exchange_name)
+        url = SERVER + "{}/{}/contracts/".format(exchange_lib, variety_en)
         reply = network_manager.get(QNetworkRequest(QUrl(url)))
         reply.finished.connect(self.variety_contracts_reply)
 
@@ -64,10 +64,10 @@ class ContractKei(ContractKeiUI):
 
         if contract == "主力合约":
             self.kline_title = self.current_variety + "主力合约日K线图"
-            url = SERVER + "trend/kline/main-contract/?variety_en={}&exchange={}".format(self.current_variety, self.current_exchange)
+            url = SERVER + "trend/kline/{}/{}/main-contract/".format(self.current_exchange, self.current_variety)
         else:
             self.kline_title = self.contract_combobox.currentText() + "日K线图"
-            url = SERVER + "trend/kline/?contract={}&exchange={}".format(contract, self.current_exchange)
+            url = SERVER + "trend/kline/{}/{}/".format(self.current_exchange, contract)
 
         reply = network_manager.get(QNetworkRequest(QUrl(url)))
         reply.finished.connect(self.kline_data_reply)

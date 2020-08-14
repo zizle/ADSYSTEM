@@ -3,44 +3,144 @@
 # @Time  : 2020-08-10 20:01
 # @Author: zizle
 
-""" K 线"""
+""" K 线 把各交易所的分开写,易于后期拓展 """
+
 import re
-from fastapi import APIRouter, Query, HTTPException
-from modules.basic.validate_items import ExchangeLib
+from fastapi import APIRouter, Query, HTTPException, Depends
 from db.mysql_z import MySqlZ
 
 kline_router = APIRouter()
 
 
-@kline_router.get("/kline/", summary="获取某合约的k线数据")
-async def variety_contract(contract: str = Query(...), exchange: ExchangeLib = Query(...)):
-    if not re.match(r"^[A-Z0-9]{5,6}$", contract):
+def verify_variety(variety_en: str):
+    """ 交易代码的验证 """
+    if not re.match(r'^[A-Z]{1,2}$', variety_en):
+        raise HTTPException(detail="Invalidate Variety!", status_code=400)
+    return variety_en
+
+
+def verify_contract(contract: str):
+    """ 交易合约的验证 """
+    if not re.match(r"^[A-Z]{1,2}[0-9]{4}$", contract):
         raise HTTPException(detail="Invalidate Contract!", status_code=400)
+    return contract
+
+
+@kline_router.get("/kline/dce/{contract}/", summary="获取大连商品交易所合约的k线数据")
+async def variety_contract(contract: str = Depends(verify_contract)):
     # 查询数据库获取数据
     with MySqlZ() as cursor:
         cursor.execute(
             "SELECT `date`,`contract`,`open_price`,`close_price`,`highest`,`lowest` "
-            "FROM {}_daily "
+            "FROM dce_daily "
             "WHERE `contract`=%s AND `open_price`<>0 AND `close_price`<>0 AND `highest`<>0 AND `lowest`<>0 "
-            "ORDER BY `date`;".format(exchange.name),
+            "ORDER BY `date`;",
             contract
         )
         data = cursor.fetchall()
-    return {"message": "查询成功!", "data": data}
+    return {"message": "查询大商所{}K线数据成功!".format(contract), "data": data}
 
 
-@kline_router.get("/kline/main-contract/", summary="获取某品种的主力合约K线数据")
-async def variety_main_contract(variety_en: str = Query(...), exchange: ExchangeLib = Query(...)):
-    if not re.match(r"^[A-Z]{1,2}$", variety_en):
-        raise HTTPException(detail="Invalidate Variety_EN!", status_code=400)
+@kline_router.get("/kline/czce/{contract}/", summary="获取郑州商品交易所合约的k线数据")
+async def variety_contract(contract: str = Depends(verify_contract)):
+    # 查询数据库获取数据
+    with MySqlZ() as cursor:
+        cursor.execute(
+            "SELECT `date`,`contract`,`open_price`,`close_price`,`highest`,`lowest` "
+            "FROM czce_daily "
+            "WHERE `contract`=%s AND `open_price`<>0 AND `close_price`<>0 AND `highest`<>0 AND `lowest`<>0 "
+            "ORDER BY `date`;",
+            contract
+        )
+        data = cursor.fetchall()
+    return {"message": "查询郑商所{}K线数据成功!".format(contract), "data": data}
+
+
+@kline_router.get("/kline/shfe/{contract}/", summary="获取上海期货交易所合约的k线数据")
+async def variety_contract(contract: str = Depends(verify_contract)):
+    # 查询数据库获取数据
+    with MySqlZ() as cursor:
+        cursor.execute(
+            "SELECT `date`,`contract`,`open_price`,`close_price`,`highest`,`lowest` "
+            "FROM shfe_daily "
+            "WHERE `contract`=%s AND `open_price`<>0 AND `close_price`<>0 AND `highest`<>0 AND `lowest`<>0 "
+            "ORDER BY `date`;",
+            contract
+        )
+        data = cursor.fetchall()
+    return {"message": "查询上期所{}K线数据成功!".format(contract), "data": data}
+
+
+@kline_router.get("/kline/cffex/{contract}/", summary="获取中国金融期货交易所合约的k线数据")
+async def variety_contract(contract: str = Depends(verify_contract)):
+    # 查询数据库获取数据
+    with MySqlZ() as cursor:
+        cursor.execute(
+            "SELECT `date`,`contract`,`open_price`,`close_price`,`highest`,`lowest` "
+            "FROM cffex_daily "
+            "WHERE `contract`=%s AND `open_price`<>0 AND `close_price`<>0 AND `highest`<>0 AND `lowest`<>0 "
+            "ORDER BY `date`;",
+            contract
+        )
+        data = cursor.fetchall()
+    return {"message": "查询中金所{}K线数据成功!".format(contract), "data": data}
+
+
+@kline_router.get("/kline/dce/{variety_en}/main-contract/", summary="获取大商所主力合约K线数据")
+async def variety_main_contract(variety_en: str = Depends(verify_variety)):
     with MySqlZ() as cursor:
         cursor.execute(
             "SELECT t.date,t.variety_en,t.contract,t.open_price,t.close_price,t.highest,t.lowest "
             "FROM (SELECT date,variety_en,contract,open_price,close_price,highest,lowest "
-            "FROM {}_daily WHERE variety_en=%s "
+            "FROM dce_daily WHERE variety_en=%s "
             "ORDER BY empty_volume DESC limit 999999999) AS t "
-            "GROUP BY t.date;".format(exchange.name),
+            "GROUP BY t.date;",
             (variety_en,)
         )
         data = cursor.fetchall()
-    return {"message": "查询主力合约数据成功!", "data": data}
+    return {"message": "查询大商所{}主力合约数据成功!".format(variety_en), "data": data}
+
+
+@kline_router.get("/kline/czce/{variety_en}/main-contract/", summary="获取郑商所主力合约K线数据")
+async def variety_main_contract(variety_en: str = Depends(verify_variety)):
+    with MySqlZ() as cursor:
+        cursor.execute(
+            "SELECT t.date,t.variety_en,t.contract,t.open_price,t.close_price,t.highest,t.lowest "
+            "FROM (SELECT date,variety_en,contract,open_price,close_price,highest,lowest "
+            "FROM czce_daily WHERE variety_en=%s "
+            "ORDER BY empty_volume DESC limit 999999999) AS t "
+            "GROUP BY t.date;",
+            (variety_en,)
+        )
+        data = cursor.fetchall()
+    return {"message": "查询郑商所{}主力合约数据成功!".format(variety_en), "data": data}
+
+
+@kline_router.get("/kline/shfe/{variety_en}/main-contract/", summary="获取上期所主力合约K线数据")
+async def variety_main_contract(variety_en: str = Depends(verify_variety)):
+    with MySqlZ() as cursor:
+        cursor.execute(
+            "SELECT t.date,t.variety_en,t.contract,t.open_price,t.close_price,t.highest,t.lowest "
+            "FROM (SELECT date,variety_en,contract,open_price,close_price,highest,lowest "
+            "FROM shfe_daily WHERE variety_en=%s "
+            "ORDER BY empty_volume DESC limit 999999999) AS t "
+            "GROUP BY t.date;",
+            (variety_en,)
+        )
+        data = cursor.fetchall()
+    return {"message": "查询上期所{}主力合约数据成功!".format(variety_en), "data": data}
+
+
+@kline_router.get("/kline/cffex/{variety_en}/main-contract/", summary="获取中金所主力合约K线数据")
+async def variety_main_contract(variety_en: str = Depends(verify_variety)):
+    with MySqlZ() as cursor:
+        cursor.execute(
+            "SELECT t.date,t.variety_en,t.contract,t.open_price,t.close_price,t.highest,t.lowest "
+            "FROM (SELECT date,variety_en,contract,open_price,close_price,highest,lowest "
+            "FROM cffex_daily WHERE variety_en=%s "
+            "ORDER BY empty_volume DESC limit 999999999) AS t "
+            "GROUP BY t.date;",
+            (variety_en,)
+        )
+        data = cursor.fetchall()
+    return {"message": "查询中金所{}主力合约数据成功!".format(variety_en), "data": data}

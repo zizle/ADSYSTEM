@@ -60,7 +60,7 @@ class VarietyTree(QTreeWidget):
                 child = QTreeWidgetItem(tree_item)
                 child.setText(0, child_item["variety_name"])
                 setattr(child, "variety_en", child_item["variety_en"])
-                setattr(child, "exchange_name", child_item["exchange_name"])
+                setattr(child, "exchange_lib", child_item["exchange_lib"])
                 # child.setIcon(0, QIcon(child_item["logo"]))
                 tree_item.addChild(child)
         reply.deleteLater()
@@ -77,5 +77,5 @@ class VarietyTree(QTreeWidget):
             self.unselected_signal.emit()
         elif tree_item.parent():
             item_en = getattr(tree_item, "variety_en")
-            exchange_name = getattr(tree_item, "exchange_name")
-            self.selected_signal.emit(item_en, exchange_name)
+            exchange_lib = getattr(tree_item, "exchange_lib")
+            self.selected_signal.emit(item_en, exchange_lib)

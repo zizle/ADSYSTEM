@@ -6,7 +6,6 @@ import os
 import random
 import time
 from typing import Optional
-from datetime import datetime, timedelta
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from fastapi import Depends, status
@@ -107,7 +106,6 @@ def is_active_user(unique_code: str):
             (unique_code, )
         )
         user_dict = cursor.fetchone()
-    print(user_dict)
     if user_dict:
         return True
     else:
@@ -121,7 +119,6 @@ async def is_user_logged_in(token: str = Depends(oauth2_scheme)):
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        print("收到客户端发来的token:", token)
         payload = jwt.decode(token, SECRET_KEY, algorithms='HS256')
         unique_code: str = payload.get("unique_code")  # `unique_code`与生成时的对应
         if unique_code is None:

@@ -11,8 +11,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # SYS_BIT = "32" if sys.maxsize < 2 ** 32 else "64"
 SYS_BIT = "admin"  # 系统版本,后台管理端默认64使用`admin`代替
 
-# SERVER = "http://210.13.218.130:9001/"
-SERVER = "http://127.0.0.1:8000/"
+SERVER = "http://210.13.218.130:9001/"
+# SERVER = "http://127.0.0.1:8000/"
 
 LOCAL_SPIDER_SRC = os.path.join(BASE_DIR, "sources/")  # 爬取保存文件的本地文件夹
 

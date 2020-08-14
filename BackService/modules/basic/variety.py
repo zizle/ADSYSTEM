@@ -4,13 +4,20 @@
 # @Author: zizle
 import re
 from collections import OrderedDict
-from fastapi import APIRouter, Query, Body, HTTPException
+from fastapi import APIRouter, Query, Body, HTTPException, Depends
 from db.mysql_z import MySqlZ
 from db.redis_z import RedisZ
 from pymysql.err import IntegrityError, ProgrammingError
 from .validate_items import VarietyGroup, ExchangeLib, VarietyItem
 
 variety_router = APIRouter()
+
+
+# 验证品种
+def verify_variety(variety_en: str):
+    if not re.match(r'^[A-Z]{1,2}$', variety_en):
+        raise HTTPException(detail="Invalidate Variety!", status_code=400)
+    return variety_en
 
 
 @variety_router.get("/variety/all/", summary="获取所有分组及旗下的品种")
@@ -81,26 +88,110 @@ async def add_basic_variety(
     return {"message": "添加品种成功!", "new_variety": variety}
 
 
-@variety_router.get("/contracts/", summary="获取某品种下的所有合约")
-async def variety_contract(variety_en: str = Query(...), exchange: ExchangeLib = Query(...)):
-    if not re.match(r'^[A-Z]{1,2}$', variety_en):
-        raise HTTPException(detail="Got an invalid variety_en.", status_code=400)
+@variety_router.get("/dce/{variety_en}/contracts/", summary="获取大商所某品种合约")
+async def variety_contract(variety_en: str = Depends(verify_variety)):
     # 从redis获取当前品种的所有合约
     with RedisZ() as rs:
-        contracts_str = rs.get("{}_contracts".format(variety_en))
-        if not contracts_str:
+        contracts_str = rs.get("dce{}_contracts".format(variety_en))
+        if contracts_str:
+            contracts = contracts_str.split(";")
+        else:
             # 查询当前数据下的所有品种,保存到redis,有效期为12h
             with MySqlZ() as cursor:
                 cursor.execute(
-                    "SELECT `contract` FROM {}_daily "
+                    "SELECT `contract` FROM dce_daily "
                     "WHERE `variety_en`=%s "
-                    "GROUP BY `contract`;".format(exchange.name),
+                    "GROUP BY `contract`;",
                     variety_en
                 )
                 contract_indb = cursor.fetchall()
-            contracts_str = ';'.join([item['contract'] for item in contract_indb])
-            rs.set("{}_contracts".format(variety_en), contracts_str, ex=43200)
-    contracts = contracts_str.split(";")
+            if contract_indb:
+                contracts_str = ';'.join([item['contract'] for item in contract_indb])
+                rs.set("dce{}_contracts".format(variety_en), contracts_str, ex=43200)
+                contracts = contracts_str.split(";")
+            else:
+                contracts = []
     contracts.reverse()
-    return {"message": "获取品种合约成功!", "contracts": contracts}
+    return {"message": "获取大商所{}所有合约成功!".format(variety_en), "contracts": contracts}
+
+
+@variety_router.get("/czce/{variety_en}/contracts/", summary="获取郑商所某品种合约")
+async def variety_contract(variety_en: str = Depends(verify_variety)):
+    # 从redis获取当前品种的所有合约
+    with RedisZ() as rs:
+        contracts_str = rs.get("czce{}_contracts".format(variety_en))
+        if contracts_str:
+            contracts = contracts_str.split(";")
+        else:
+            # 查询当前数据下的所有品种,保存到redis,有效期为12h
+            with MySqlZ() as cursor:
+                cursor.execute(
+                    "SELECT `contract` FROM czce_daily "
+                    "WHERE `variety_en`=%s "
+                    "GROUP BY `contract`;",
+                    variety_en
+                )
+                contract_indb = cursor.fetchall()
+            if contract_indb:
+                contracts_str = ';'.join([item['contract'] for item in contract_indb])
+                rs.set("czce{}_contracts".format(variety_en), contracts_str, ex=43200)
+                contracts = contracts_str.split(";")
+            else:
+                contracts = []
+    contracts.reverse()
+    return {"message": "获取郑商所{}所有合约成功!".format(variety_en), "contracts": contracts}
+
+
+@variety_router.get("/shfe/{variety_en}/contracts/", summary="获取上期所某品种合约")
+async def variety_contract(variety_en: str = Depends(verify_variety)):
+    # 从redis获取当前品种的所有合约
+    with RedisZ() as rs:
+        contracts_str = rs.get("shfe{}_contracts".format(variety_en))
+        if contracts_str:
+            contracts = contracts_str.split(";")
+        else:
+            # 查询当前数据下的所有品种,保存到redis,有效期为12h
+            with MySqlZ() as cursor:
+                cursor.execute(
+                    "SELECT `contract` FROM shfe_daily "
+                    "WHERE `variety_en`=%s "
+                    "GROUP BY `contract`;",
+                    variety_en
+                )
+                contract_indb = cursor.fetchall()
+            if contract_indb:
+                contracts_str = ';'.join([item['contract'] for item in contract_indb])
+                rs.set("shfe{}_contracts".format(variety_en), contracts_str, ex=43200)
+                contracts = contracts_str.split(";")
+            else:
+                contracts = []
+    contracts.reverse()
+    return {"message": "获取上期所{}所有合约成功!".format(variety_en), "contracts": contracts}
+
+
+@variety_router.get("/cffex/{variety_en}/contracts/", summary="获取中金所某品种合约")
+async def variety_contract(variety_en: str = Depends(verify_variety)):
+    # 从redis获取当前品种的所有合约
+    with RedisZ() as rs:
+        contracts_str = rs.get("cffex{}_contracts".format(variety_en))
+        if contracts_str:
+            contracts = contracts_str.split(";")
+        else:
+            # 查询当前数据下的所有品种,保存到redis,有效期为12h
+            with MySqlZ() as cursor:
+                cursor.execute(
+                    "SELECT `contract` FROM cffex_daily "
+                    "WHERE `variety_en`=%s "
+                    "GROUP BY `contract`;",
+                    variety_en
+                )
+                contract_indb = cursor.fetchall()
+            if contract_indb:
+                contracts_str = ';'.join([item['contract'] for item in contract_indb])
+                rs.set("cffex{}_contracts".format(variety_en), contracts_str, ex=43200)
+                contracts = contracts_str.split(";")
+            else:
+                contracts = []
+    contracts.reverse()
+    return {"message": "获取中金所{}所有合约成功!".format(variety_en), "contracts": contracts}
 
