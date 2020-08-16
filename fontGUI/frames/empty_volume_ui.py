@@ -37,6 +37,7 @@ class EmptyVolumeUI(QSplitter):
         self.rank_spinbox.setSuffix(" 名")
         self.rank_spinbox.setRange(1, 20)
         self.rank_spinbox.setValue(20)
+        self.rank_spinbox.hide()
         opts_layout.addWidget(self.rank_spinbox)
         # 分割线
         vertical_line = QFrame(self)

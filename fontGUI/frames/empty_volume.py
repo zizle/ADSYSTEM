@@ -21,14 +21,15 @@ class EmptyVolume(EmptyVolumeUI):
         self.radio_button_group.buttonClicked.connect(self.change_daily_rank)  # 改变目标数据源
         self.confirm_button.clicked.connect(self.get_empty_volume_data)        # 确定查询数据生成图形
 
-    def click_variety(self, variety_en, exchange_name):
+    def click_variety(self, variety_en, exchange_lib):
         """ 左侧选择品种 """
         self.current_variety = variety_en                                      # 赋值类属性
-        self.current_exchange = exchange_name
+        self.current_exchange = exchange_lib
+        print(self.current_variety, self.current_exchange)
         self.contract_combobox.clear()                                         # 清空合约下拉选项,并请求当前品种的所有合约
         app = QApplication.instance()
         network_manager = getattr(app, "_network")
-        url = SERVER + "contracts/?variety_en={}&exchange={}".format(variety_en, exchange_name)
+        url = SERVER + "{}/{}/contracts/".format(self.current_exchange, self.current_variety)
         reply = network_manager.get(QNetworkRequest(QUrl(url)))
         reply.finished.connect(self.variety_contracts_reply)
 
@@ -48,7 +49,12 @@ class EmptyVolume(EmptyVolumeUI):
 
     def change_daily_rank(self, radio_button):
         """ 目标数据源选择改变 """
-        self.current_source = "daily" if radio_button.text() == "行情统计" else "rank"
+        if radio_button.text() == "行情统计":
+            self.current_source = "daily"
+            self.rank_spinbox.hide()
+        else:
+            self.current_source = "rank"
+            self.rank_spinbox.show()
 
     def get_empty_volume_data(self):
         """ 获取持仓分析数据 """

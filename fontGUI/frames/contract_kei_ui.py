@@ -13,8 +13,11 @@ class ContractKeiUI(QSplitter):
     """ 合约K线界面 """
     def __init__(self, *args, **kwargs):
         super(ContractKeiUI, self).__init__(*args, **kwargs)
+        main_layout = QHBoxLayout()  # 使用主layout,让控件自适应窗口改变大小
+        main_layout.setSpacing(0)
+
         self.variety_tree = VarietyTree(self)
-        self.addWidget(self.variety_tree)
+        main_layout.addWidget(self.variety_tree)
 
         self.right_widget = QWidget(self)
         right_layout = QVBoxLayout()
@@ -35,9 +38,10 @@ class ContractKeiUI(QSplitter):
         right_layout.addWidget(self.web_container)
 
         self.right_widget.setLayout(right_layout)
-        self.addWidget(self.right_widget)
+        main_layout.addWidget(self.right_widget)
 
         self.setStretchFactor(1, 2)
         self.setStretchFactor(2, 8)
         self.setHandleWidth(1)
         self.contract_combobox.setMinimumWidth(80)
+        self.setLayout(main_layout)

@@ -6,6 +6,8 @@
 
 from fastapi import APIRouter
 from .k_line import kline_router
+from .empty_volume import empty_volume_router
 
 trend_router = APIRouter()
 trend_router.include_router(kline_router)
+trend_router.include_router(empty_volume_router)
