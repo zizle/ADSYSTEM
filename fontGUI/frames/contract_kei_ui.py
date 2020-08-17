@@ -30,6 +30,11 @@ class ContractKeiUI(QSplitter):
 
         self.confirm_button = QPushButton("确定", self)
         opts_layout.addWidget(self.confirm_button)
+
+        self.tip_button = QPushButton("正在查询数据 ", self)
+        self.tip_button.hide()
+        opts_layout.addWidget(self.tip_button)
+
         opts_layout.addStretch()
 
         right_layout.addLayout(opts_layout)
@@ -45,3 +50,5 @@ class ContractKeiUI(QSplitter):
         self.setHandleWidth(1)
         self.contract_combobox.setMinimumWidth(80)
         self.setLayout(main_layout)
+        self.tip_button.setObjectName("tipButton")
+        self.setStyleSheet("#tipButton{border:none;color:rgb(230,50,50);font-weight:bold}")

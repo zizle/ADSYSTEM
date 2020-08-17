@@ -6,7 +6,7 @@ import json
 from PySide2.QtWidgets import QApplication
 from PySide2.QtNetwork import QNetworkRequest
 from PySide2.QtWebChannel import QWebChannel
-from PySide2.QtCore import QUrl
+from PySide2.QtCore import QUrl, QTimer
 from channel.kline import KlinePageChannel
 from configs import SERVER
 from .contract_kei_ui import ContractKeiUI
@@ -20,6 +20,9 @@ class ContractKei(ContractKeiUI):
     def __init__(self, *args, **kwargs):
         super(ContractKei, self).__init__(*args, **kwargs)
         self.kline_title = ""                                                      # 分合约日线和主力合约
+        self.tips_animation_timer = QTimer(self)                                   # 显示文字提示的timer
+        self.tips_animation_timer.timeout.connect(self.animation_tip_text)
+
         self.web_container.load(QUrl("file:///pages/kline.html"))
         # 设置与页面信息交互的通道
         channel_qt_obj = QWebChannel(self.web_container.page())                    # 实例化qt信道对象,必须传入页面参数
@@ -29,6 +32,15 @@ class ContractKei(ContractKeiUI):
 
         self.variety_tree.selected_signal.connect(self.click_variety)              # 选择品种请求当前品种的合约
         self.confirm_button.clicked.connect(self.get_kline_data)                   # 确定获取品种下的K线数据
+
+    def animation_tip_text(self):
+        """ 动态展示查询文字提示 """
+        tips = self.tip_button.text()
+        tip_points = tips.split(' ')[1]
+        if len(tip_points) > 2:
+            self.tip_button.setText("正在查询数据 ")
+        else:
+            self.tip_button.setText("正在查询数据 " + "·" * (len(tip_points) + 1))
 
     def click_variety(self, variety_en, exchange_lib):
         """ 点击选择品种 """
@@ -58,6 +70,9 @@ class ContractKei(ContractKeiUI):
 
     def get_kline_data(self):
         """ 获取当前品种当前合约下的K线数据 """
+        self.tips_animation_timer.start(400)
+        self.tip_button.show()
+
         app = QApplication.instance()
         network_manager = getattr(app, "_network")
         contract = self.contract_combobox.currentText()
@@ -83,3 +98,5 @@ class ContractKei(ContractKeiUI):
         kline_data = json.dumps(data["data"])
         reply.deleteLater()
         self.contact_channel.kline_data.emit(kline_data, self.kline_title)  # 将数据传输到网页中绘图(字符串型,dict型无法接收)
+        self.tip_button.setText("查询成功! ")
+        self.tips_animation_timer.stop()

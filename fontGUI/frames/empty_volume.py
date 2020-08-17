@@ -79,17 +79,28 @@ class EmptyVolume(EmptyVolumeUI):
 
     def get_empty_volume_data(self):
         """ 获取持仓分析数据 """
+        current_contract = self.contract_combobox.currentText()
+        if self.current_source == "daily":
+            if current_contract == "主力合约":
+                self.position_line_title = "行情统计{}主力合约持仓情况".format(self.current_variety)
+                url = SERVER + "trend/daily-position/{}/{}/main-contract/".format(self.current_exchange, self.current_variety)
+            else:
+                self.position_line_title = "行情统计{}持仓情况".format(current_contract)
+                url = SERVER + "trend/daily-position/{}/{}/".format(self.current_exchange, current_contract)
+        elif self.current_source == "rank":
+            rank_value = self.rank_spinbox.value()
+            if current_contract == "主力合约":
+                self.position_line_title = "{}前{}排名主力合约持仓情况".format(self.current_variety, rank_value)
+                url = SERVER + "trend/rank-position/{}/{}/main-contract/?rank={}".format(self.current_exchange, self.current_variety,rank_value)
+            else:
+                self.position_line_title = "{}前{}排名持仓情况".format(current_contract, rank_value)
+                url = SERVER + "trend/rank-position/{}/{}/?rank={}".format(self.current_exchange, current_contract, rank_value)
+        else:
+            return
+
         self.tip_button.show()
         self.tips_animation_timer.start(400)
 
-        source_text = "行情统计" if self.current_source == "daily" else "前{}排名".format(self.rank_spinbox.value())
-        current_contract = self.contract_combobox.currentText()
-        if current_contract == "主力合约":
-            url = SERVER + "trend/{}-position/{}/{}/main-contract/".format(self.current_source, self.current_exchange, self.current_variety)
-            self.position_line_title = "{}{}主力合约持仓分析".format(self.current_variety, source_text)
-        else:
-            url = SERVER + 'trend/{}-position/{}/{}/'.format(self.current_source, self.current_exchange, current_contract)
-            self.position_line_title = "{}{}持仓分析".format(current_contract,source_text)
         app = QApplication.instance()
         network_manager = getattr(app, "_network")
         reply = network_manager.get(QNetworkRequest(QUrl(url)))

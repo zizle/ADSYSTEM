@@ -4,7 +4,7 @@
 # @Author: zizle
 import json
 from PySide2.QtWidgets import QApplication, QTableWidgetItem
-from PySide2.QtCore import Qt
+from PySide2.QtCore import Qt, QTimer
 from PySide2.QtNetwork import QNetworkRequest
 from .exchange_query_ui import ExchangeQueryUI
 from configs import SERVER
@@ -29,6 +29,10 @@ class ExchangeQuery(ExchangeQueryUI):
 
         self.current_exchange = None
         self.current_action = None
+
+        self.tip_timer = QTimer(self)                                          # 显示查询中文字
+        self.tip_timer.timeout.connect(self.animation_tip_text)
+
         self.exchange_tree.selected_signal.connect(self.selected_action)       # 树控件点击事件
         self.exchange_tree.unselected_signal.connect(self.unselected_any)      # 没有选择项目
         self.query_button.clicked.connect(self.query_target_data)              # 查询合约详情数据
@@ -41,8 +45,17 @@ class ExchangeQuery(ExchangeQueryUI):
             self.tip_label.setText("左侧选择想要查询的数据类别再进行查询.")
             return False
         else:
-            self.tip_label.setText("正在查询相关数据···")
+            self.tip_label.setText("正在查询相关数据 ")
             return True
+
+    def animation_tip_text(self):
+        """ 动态展示查询文字提示 """
+        tips = self.tip_label.text()
+        tip_points = tips.split(' ')[1]
+        if len(tip_points) > 2:
+            self.tip_label.setText("正在查询相关数据 ")
+        else:
+            self.tip_label.setText("正在查询相关数据 " + "·" * (len(tip_points) + 1))
 
     def selected_action(self, exchange, action):
         """ 目录树点击信号 """
@@ -62,6 +75,7 @@ class ExchangeQuery(ExchangeQueryUI):
         """ 点击确定查询合约详情目标数据 """
         if not self.is_allow_query():
             return
+        self.tip_timer.start(400)
         # 清除table
         self.show_table.clear()
         self.show_table.setRowCount(0)
@@ -81,6 +95,7 @@ class ExchangeQuery(ExchangeQueryUI):
         if not self.is_allow_query():
             return
         # 清除table
+        self.tip_timer.start(400)
         self.show_table.clear()
         self.show_table.setRowCount(0)
         self.show_table.setColumnCount(0)
@@ -105,8 +120,9 @@ class ExchangeQuery(ExchangeQueryUI):
         data = reply.readAll().data()
         data = json.loads(data.decode("utf-8"))
         reply.deleteLater()
-        self.tip_label.setText("查询成功!")
         self.show_table_fill_contents(data['content_keys'], data["result"])  # 数据表显示数据
+        self.tip_timer.stop()
+        self.tip_label.setText("查询成功!")
 
     def show_table_fill_contents(self, headers, contents):
         """ 查询到的数据填到表格中 """
