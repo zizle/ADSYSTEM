@@ -19,7 +19,7 @@ class ContractKei(ContractKeiUI):
 
     def __init__(self, *args, **kwargs):
         super(ContractKei, self).__init__(*args, **kwargs)
-        self.kline_title = ""                                               # 分合约日线和主力合约
+        self.kline_title = ""                                                      # 分合约日线和主力合约
         self.web_container.load(QUrl("file:///pages/kline.html"))
         # 设置与页面信息交互的通道
         channel_qt_obj = QWebChannel(self.web_container.page())                    # 实例化qt信道对象,必须传入页面参数

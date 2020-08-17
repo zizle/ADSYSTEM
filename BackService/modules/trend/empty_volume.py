@@ -3,7 +3,11 @@
 # @Time  : 2020-08-16 21:51
 # @Author: zizle
 
-""" 持仓量分析 """
+""" 持仓量分析
+trade_volume: 成交量
+empty_volume: 行情持仓为持仓量;统计持仓为净持仓量
+close_price: 收盘价
+"""
 
 from fastapi import APIRouter, Depends, Query
 from utils.contract import verify_contract, verify_variety
@@ -16,68 +20,76 @@ empty_volume_router = APIRouter()
 async def dce_daily_position(contract: str = Depends(verify_contract)):
     with MySqlZ() as cursor:
         cursor.execute(
-            "SELECT `date`,contract,trade_volume,empty_volume "
+            "SELECT `date`,contract,trade_volume,empty_volume,close_price "
             "FROM dce_daily "
             "WHERE contract=%s "
             "ORDER BY `date`;",
             (contract,)
         )
         data = cursor.fetchall()
-        return {"message": "查询郑商所日行情的{}持仓数据成功!".format(contract), "data": data}
+        return {"message": "大商所日行情的{}持仓数据!".format(contract), "data": data}
 
 
 @empty_volume_router.get("/daily-position/dce/{variety_en}/main-contract/")
 async def dce_daily_position_main_contract(variety_en: str = Depends(verify_variety)):
     with MySqlZ() as cursor:
         cursor.execute(
-            "SELECT t.date,t.variety_en,t.contract,t.trade_volume,t.empty_volume "
-            "FROM (SELECT `date`,variety_en,contract,trade_volume,empty_volume "
+            "SELECT t.date,t.variety_en,t.contract,t.trade_volume,t.empty_volume,t.close_price "
+            "FROM (SELECT `date`,variety_en,contract,trade_volume,empty_volume,close_price "
             "FROM dce_daily WHERE variety_en=%s "
             "ORDER BY empty_volume DESC limit 999999999) AS t "
             "GROUP BY t.date;",
             (variety_en,)
         )
         data = cursor.fetchall()
-    return {"message": "郑商所日行情的主力合约持仓数据!", "data": data}
+    return {"message": "大商所日行情的主力合约持仓数据!", "data": data}
 
 
 @empty_volume_router.get("/rank-position/dce/{contract}/", summary="郑商所合约排名合计持仓量")
 async def dce_rank_position(contract: str = Depends(verify_contract), rank: int = Query(20, ge=1, le=20)):
     with MySqlZ() as cursor:
         cursor.execute(
-            "SELECT `date`,variety_en,contract,"
-            "sum(trade) AS total_trade, "
-            "sum(long_position) AS total_long_position, "
-            "sum(short_position) AS total_short_position,"
-            "(sum(long_position) - sum(short_position)) AS net_position "
-            "FROM dce_rank "
-            "WHERE contract='%s' AND `rank`>=1 AND `rank`<=%d "
-            "GROUP BY `date` "
-            "ORDER BY `date`;" % (contract, rank),
+            "SELECT `date`,close_price,contract FROM dce_daily WHERE contract=%s;", contract
         )
-        data = cursor.fetchall()
-        return {"message": "郑商所{}合约排名合计持仓量!".format(contract), "data": data}
+        price_data = cursor.fetchall()
+        cursor.execute(
+            "SELECT `date`,contract,"
+            "SUM(trade) AS trade_volume,"
+            "(SUM(long_position)-SUM(short_position)) AS empty_volume "
+            "FROM dce_rank WHERE contract=%s AND rank>=1 AND rank<=%s "
+            "GROUP BY `date`;",
+            (contract, rank)
+        )
+        position_data = cursor.fetchall()
+    for rank_item in position_data:
+        rank_item['close_price'] = ''
+        for daily_item in price_data:
+            if daily_item['date'] == rank_item['date']:
+                rank_item['close_price'] = daily_item['close_price']
+                break
+    return {"message": "郑商所{}合约排名合计持仓量!".format(contract), "data": position_data}
 
 
-@empty_volume_router.get("/rank-position/dce/{variety_en}/main-contract/")
+@empty_volume_router.get("/rank-position/dce/{variety_en}/main-contract/", summary="大商所主力合约持仓排名持仓量")
 async def dce_rank_position_main_contract(
         variety_en: str = Depends(verify_variety),
         rank: int = Query(20, ge=1, le=20)
 ):
     with MySqlZ() as cursor:
         cursor.execute(
-            "select ranktb.date,ranktb.variety_en,ranktb.contract,"
-            "sum(ranktb.trade) AS total_trade,"
-            "sum(long_position) AS total_long_position,"
-            "sum(short_position) AS total_short_position,"
-            "(sum(long_position) - sum(short_position)) AS net_position "
-            "from dce_rank as ranktb "
-            "inner join "
-            "(select date,variety_en,contract,empty_volume "
-            "from dce_daily where variety_en=%s order by empty_volume desc limit 99999999) as t "
-            "on ranktb.contract=t.contract AND ranktb.date=t.date AND ranktb.rank>=1 AND ranktb.rank<=%s "
-            "group by ranktb.date;",
+            "SELECT ranktb.date,ranktb.variety_en,ranktb.contract,"
+            "SUM(ranktb.trade) AS trade_volume,"
+            "(SUM(ranktb.long_position) - SUM(ranktb.short_position)) AS empty_volume,"
+            "mctb.close_price AS close_price "
+            "FROM dce_rank AS ranktb "
+            "INNER JOIN "
+            "(SELECT t.date,t.contract,t.close_price FROM (SELECT `date`,variety_en,contract,empty_volume,close_price "
+            "FROM dce_daily WHERE variety_en=%s ORDER BY empty_volume DESC limit 99999999) AS t "
+            "GROUP BY t.date) AS mctb "
+            "ON ranktb.contract=mctb.contract AND ranktb.date=mctb.date "
+            "WHERE ranktb.rank>=1 AND ranktb.rank<=%s "
+            "GROUP BY ranktb.date;",
             (variety_en, rank)
         )
         data = cursor.fetchall()
-    return {"message": "郑商所主力合约排名前{}持仓数据!".format(rank), "data": data}
+    return {"message": "大商所主力合约排名前{}持仓数据!".format(rank), "data": data}

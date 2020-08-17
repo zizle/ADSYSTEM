@@ -8,7 +8,7 @@ from routers import router
 
 app = FastAPI()
 
-app.mount("/download-files/", StaticFiles(directory="E:/ADSCLIENTS/"), name="clientUpdate")
+app.mount("/download-files/", StaticFiles(directory="F:/ADSCLIENTS/"), name="clientUpdate")
 
 
 @app.get("/", tags=["主页"])

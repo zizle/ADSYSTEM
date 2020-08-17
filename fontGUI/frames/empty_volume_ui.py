@@ -14,9 +14,10 @@ from components.variety_tree import VarietyTree
 class EmptyVolumeUI(QSplitter):
     def __init__(self, *args, **kwargs):
         super(EmptyVolumeUI, self).__init__(*args, **kwargs)
+        main_layout = QHBoxLayout()
         self.variety_tree = VarietyTree(self)
 
-        self.addWidget(self.variety_tree)
+        main_layout.addWidget(self.variety_tree)
 
         self.right_widget = QWidget(self)
         right_layout = QVBoxLayout()
@@ -50,6 +51,10 @@ class EmptyVolumeUI(QSplitter):
 
         self.confirm_button = QPushButton("确定", self)
         opts_layout.addWidget(self.confirm_button)
+
+        self.tip_button = QPushButton('正在查询数据 ', self)  # 提示文字
+        self.tip_button.hide()
+        opts_layout.addWidget(self.tip_button)
         opts_layout.addStretch()
 
         right_layout.addLayout(opts_layout)
@@ -58,9 +63,12 @@ class EmptyVolumeUI(QSplitter):
         right_layout.addWidget(self.web_container)
 
         self.right_widget.setLayout(right_layout)
-        self.addWidget(self.right_widget)
+        main_layout.addWidget(self.right_widget)
 
         self.setStretchFactor(1, 2)
         self.setStretchFactor(2, 8)
         self.setHandleWidth(1)
         self.contract_combobox.setMinimumWidth(80)
+        self.setLayout(main_layout)
+        self.tip_button.setObjectName("tipButton")
+        self.setStyleSheet("#tipButton{border:none;color:rgb(230,50,50);font-weight:bold}")
