@@ -6,7 +6,6 @@ import os
 import sys
 import time
 import logging
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # SYS_BIT = "32" if sys.maxsize < 2 ** 32 else "64"
 SYS_BIT = "admin"  # 系统版本,后台管理端默认64使用`admin`代替

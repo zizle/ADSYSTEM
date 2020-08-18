@@ -34,6 +34,16 @@ class EmptyVolume(EmptyVolumeUI):
         self.radio_button_group.buttonClicked.connect(self.change_daily_rank)  # 改变目标数据源
         self.confirm_button.clicked.connect(self.get_empty_volume_data)        # 确定查询数据生成图形
 
+    def can_query(self):
+        """ 是否可以查询数据了 """
+        self.tip_button.setGraphicsEffect(self.visible)
+        if self.current_variety is None or self.current_exchange is None:
+            self.tip_button.setText("左侧选择品种后进行查询 ")
+            return False
+        else:
+            self.tip_button.setText("正在查询数据 ")
+            return True
+
     def animation_tip_text(self):
         """ 动态展示查询文字提示 """
         tips = self.tip_button.text()
@@ -72,13 +82,15 @@ class EmptyVolume(EmptyVolumeUI):
         """ 目标数据源选择改变 """
         if radio_button.text() == "行情统计":
             self.current_source = "daily"
-            self.rank_spinbox.hide()
+            self.rank_spinbox.setEnabled(False)
         else:
             self.current_source = "rank"
-            self.rank_spinbox.show()
+            self.rank_spinbox.setEnabled(True)
 
     def get_empty_volume_data(self):
         """ 获取持仓分析数据 """
+        if not self.can_query():
+            return
         current_contract = self.contract_combobox.currentText()
         if self.current_source == "daily":
             if current_contract == "主力合约":
@@ -98,8 +110,8 @@ class EmptyVolume(EmptyVolumeUI):
         else:
             return
 
-        self.tip_button.show()
         self.tips_animation_timer.start(400)
+        self.web_container.setUpdatesEnabled(False)
 
         app = QApplication.instance()
         network_manager = getattr(app, "_network")
@@ -117,8 +129,8 @@ class EmptyVolume(EmptyVolumeUI):
         position_data = json.dumps(data["data"])
         reply.deleteLater()
         self.contact_channel.position_data.emit(position_data, self.position_line_title)  # 将数据传输到网页中绘图(字符串型,dict型无法接收)
-
         self.tips_animation_timer.stop()
         self.tip_button.setText("数据查询成功! ")
+        self.web_container.setUpdatesEnabled(True)  # 还原web界面更新
 
 

@@ -5,7 +5,13 @@
 
 import sys
 from PySide2.QtWidgets import QApplication
+from PySide2.QtGui import QGuiApplication
+from PySide2.QtCore import QCoreApplication, Qt
 from main_window import MainWindow
+QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
+QGuiApplication.setAttribute(Qt.AA_UseSoftwareOpenGL)
+QCoreApplication.setAttribute(Qt.AA_UseSoftwareOpenGL)
+QApplication.setAttribute(Qt.AA_UseSoftwareOpenGL)
 
 app = QApplication([])
 client = MainWindow()

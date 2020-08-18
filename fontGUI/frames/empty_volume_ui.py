@@ -5,15 +5,39 @@
 
 """ 持仓分析界面 """
 from PySide2.QtWidgets import (QSplitter, QWidget, QVBoxLayout, QHBoxLayout, QComboBox, QLabel, QPushButton, QButtonGroup,
-                               QRadioButton, QSpinBox, QFrame)
+                               QRadioButton, QSpinBox, QFrame, QGraphicsOpacityEffect)
 from PySide2.QtWebEngineWidgets import QWebEngineView
 from PySide2.QtCore import Qt, QMargins
 from components.variety_tree import VarietyTree
 
 
+class WebEngineView(QWebEngineView):
+    def __init__(self, *args, **kwargs):
+        super(WebEngineView, self).__init__(*args, **kwargs)
+        self.can_resize = True
+
+    def set_no_resize(self, loaded):
+        print(loaded)
+        self.can_resize = not loaded
+
+    def event(self, event):
+        if self.can_resize:
+            super(WebEngineView, self).event(event)
+            print("11111")
+        else:
+            print("0000000")
+            return
+
+
 class EmptyVolumeUI(QSplitter):
     def __init__(self, *args, **kwargs):
         super(EmptyVolumeUI, self).__init__(*args, **kwargs)
+        self.visible = QGraphicsOpacityEffect(self)
+        self.visible.setOpacity(1.0)
+
+        self.disvisible = QGraphicsOpacityEffect(self)
+        self.disvisible.setOpacity(0.0)
+
         main_layout = QHBoxLayout()
         self.variety_tree = VarietyTree(self)
 
@@ -38,7 +62,7 @@ class EmptyVolumeUI(QSplitter):
         self.rank_spinbox.setSuffix(" 名")
         self.rank_spinbox.setRange(1, 20)
         self.rank_spinbox.setValue(20)
-        self.rank_spinbox.hide()
+        self.rank_spinbox.setEnabled(False)
         opts_layout.addWidget(self.rank_spinbox)
         # 分割线
         vertical_line = QFrame(self)
@@ -52,9 +76,9 @@ class EmptyVolumeUI(QSplitter):
         self.confirm_button = QPushButton("确定", self)
         opts_layout.addWidget(self.confirm_button)
 
-        self.tip_button = QPushButton('正在查询数据 ', self)  # 提示文字
-        self.tip_button.hide()
+        self.tip_button = QPushButton('左侧选择品种后进行查询 ', self)  # 提示文字
         opts_layout.addWidget(self.tip_button)
+        self.tip_button.setGraphicsEffect(self.disvisible)
         opts_layout.addStretch()
 
         right_layout.addLayout(opts_layout)
@@ -71,4 +95,5 @@ class EmptyVolumeUI(QSplitter):
         self.contract_combobox.setMinimumWidth(80)
         self.setLayout(main_layout)
         self.tip_button.setObjectName("tipButton")
-        self.setStyleSheet("#tipButton{border:none;color:rgb(230,50,50);font-weight:bold}")
+        self.setStyleSheet("#tipButton{border:none;color:rgb(230,50,50);font-weight:bold;}")
+
