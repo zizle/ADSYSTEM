@@ -14,7 +14,7 @@ class Homepage(HomepageUI):
     """ 首页业务 """
     def __init__(self, *args, **kwargs):
         super(Homepage, self).__init__(*args, **kwargs)
-        self.is_logged_button.clicked.connect(self.ask_login_status)
+        # self.is_logged_button.clicked.connect(self.ask_login_status)
 
     def __del__(self):
         print("~首页窗口析构了")

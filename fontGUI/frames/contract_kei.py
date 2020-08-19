@@ -83,6 +83,7 @@ class ContractKei(ContractKeiUI):
         else:
             self.kline_title = self.contract_combobox.currentText() + "日K线图"
             url = SERVER + "trend/kline/{}/{}/".format(self.current_exchange, contract)
+        self.web_container.setUpdatesEnabled(False)
 
         reply = network_manager.get(QNetworkRequest(QUrl(url)))
         reply.finished.connect(self.kline_data_reply)
@@ -97,6 +98,7 @@ class ContractKei(ContractKeiUI):
         data = json.loads(data.decode("utf-8"))
         kline_data = json.dumps(data["data"])
         reply.deleteLater()
+        self.web_container.setUpdatesEnabled(True)
         self.contact_channel.kline_data.emit(kline_data, self.kline_title)  # 将数据传输到网页中绘图(字符串型,dict型无法接收)
         self.tip_button.setText("查询成功! ")
         self.tips_animation_timer.stop()
