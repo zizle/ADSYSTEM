@@ -13,6 +13,7 @@ from frames.passport import PassportPage
 from frames.exchange_query import ExchangeQuery
 from frames.contract_kei import ContractKei
 from frames.empty_volume import EmptyVolume
+from frames.net_position import NetPosition
 from admin.exchange_spider import ExchangeSpider
 from admin.user import UserAdmin
 from admin.variety import VarietyAdmin
@@ -138,6 +139,8 @@ class MainWindow(MainWindowUI):
             return
         elif action_id == "2_1":   # 数据查询-交易所数据
             central_widget = ExchangeQuery()
+        elif action_id == '2_2':
+            central_widget = NetPosition()
         elif action_id == "3_1":   # 品种K线
             central_widget = ContractKei()
         elif action_id == "3_2":

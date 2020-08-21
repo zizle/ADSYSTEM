@@ -16,7 +16,7 @@ async def index():
     return HTTPException(status_code=404)
     # return {"message": "The Analysis Decision System 2.0 Service."}
 
-app.include_router(router)
+app.include_router(router, prefix='/api')
 
 
 if __name__ == '__main__':

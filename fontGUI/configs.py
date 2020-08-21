@@ -10,8 +10,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # SYS_BIT = "32" if sys.maxsize < 2 ** 32 else "64"
 SYS_BIT = "admin"  # 系统版本,后台管理端默认64使用`admin`代替
 
-# SERVER = "http://210.13.218.130:9001/"
-SERVER = "http://127.0.0.1:8000/"
+SERVER = "http://210.13.218.130:9001/api/"
+# SERVER = "http://127.0.0.1:8000/api/"
 
 LOCAL_SPIDER_SRC = os.path.join(BASE_DIR, "sources/")  # 爬取保存文件的本地文件夹
 
@@ -23,6 +23,7 @@ MAIN_MENUS = [
     {"id": "1", "name": "首页", "logo": "", "children": None},
     {"id": "2", "name": "数据查询", "logo": "", "children": [
         {"id": "2_1", "name": "交易所数据", "logo": "icons/exchange.png", "children": None},
+        {"id": "2_2", "name": "品种净持仓", "logo": "icons/empty_volume.png", "children": None},
     ]},
     {"id": "3", "name": "数据分析", "logo": "", "children": [
         {"id": "3_1", "name": "合约K线", "logo": "icons/kei_line.png", "children": None},
