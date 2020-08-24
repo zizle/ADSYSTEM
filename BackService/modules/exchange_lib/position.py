@@ -24,7 +24,7 @@ def pivot_data_frame(source_df):
 async def all_variety_net_position(interval_days: int = Query(1)):
     # 获取当前日期及45天前
     current_date = datetime.today()
-    pre_date = current_date + timedelta(days=-45)
+    pre_date = current_date + timedelta(days=-30)
     start_date = pre_date.strftime('%Y%m%d')
     end_date = current_date.strftime('%Y%m%d')
     with MySqlZ() as cursor:

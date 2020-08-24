@@ -16,19 +16,42 @@ from .net_position_ui import NetPositionUI
 class NetPosition(NetPositionUI):
     def __init__(self, *args, **kwargs):
         super(NetPosition, self).__init__(*args, **kwargs)
+        self.timeout_count = 0                    # 计算显示的次数,虚假显示‘正在计算’字样
         self.tips_animation_timer = QTimer(self)  # 显示文字提示的timer
         self.tips_animation_timer.timeout.connect(self.animation_tip_text)
 
         self.query_button.clicked.connect(self.get_net_position)
 
+    def keyPressEvent(self, event):
+        """ Ctrl + C复制表格内容 """
+        if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_C:
+            # 获取表格的选中行
+            selected_ranges = self.data_table.selectedRanges()[0]
+            text_str = ""
+            # 行
+            for row in range(selected_ranges.topRow(), selected_ranges.bottomRow() + 1):
+                row_str = ""
+                # 列
+                for col in range(selected_ranges.leftColumn(), selected_ranges.rightColumn() + 1):
+                    item = self.data_table.item(row, col)
+                    row_str += item.text() + '\t'
+                text_str += row_str + '\n'
+            clipboard = QApplication.clipboard()
+            clipboard.setText(text_str)
+
     def animation_tip_text(self):
         """ 动态展示查询文字提示 """
         tips = self.tip_label.text()
         tip_points = tips.split(' ')[1]
-        if len(tip_points) > 2:
-            self.tip_label.setText("正在查询数据 ")
+        if self.timeout_count >= 10:
+            text = "正在计算结果 "
         else:
-            self.tip_label.setText("正在查询数据 " + "·" * (len(tip_points) + 1))
+            text = "正在查询数据 "
+        if len(tip_points) > 2:
+            self.tip_label.setText(text)
+        else:
+            self.tip_label.setText(text + "·" * (len(tip_points) + 1))
+        self.timeout_count += 1   # 计数
 
     def get_net_position(self):
         """ 获取净持仓数据 """
@@ -56,8 +79,9 @@ class NetPosition(NetPositionUI):
         self.data_table.clear()
         self.data_table.setRowCount(0)
         self.data_table.setColumnCount(0)
-        self.tips_animation_timer.stop()
-        self.tip_label.setText("查询数据成功! ")
+        self.tips_animation_timer.stop()  # 停止计时
+        self.timeout_count = 0            # 计数归0
+        self.tip_label.setText("获取结果成功! ")
         # 生成表格的列头
         self.data_table.setColumnCount(len(header_keys) * 2)
         interval_day = self.interval_days.value()
@@ -93,6 +117,7 @@ class NetPosition(NetPositionUI):
                 else:
                     item = QTableWidgetItem(str(int(variety_values.get(data_key, 0))))
                 item.setTextAlignment(Qt.AlignCenter)
+
                 self.data_table.setItem(row, col, item)
             is_pre_half = not is_pre_half
 

@@ -38,6 +38,23 @@ class ExchangeQuery(ExchangeQueryUI):
         self.query_button.clicked.connect(self.query_target_data)              # 查询合约详情数据
         self.query_variety_sum_button.clicked.connect(self.query_variety_sum)  # 查询品种合计数
 
+    def keyPressEvent(self, event):
+        """ Ctrl + C复制表格内容 """
+        if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_C:
+            # 获取表格的选中行
+            selected_ranges = self.show_table.selectedRanges()[0]
+            text_str = ""
+            # 行
+            for row in range(selected_ranges.topRow(), selected_ranges.bottomRow() + 1):
+                row_str = ""
+                # 列
+                for col in range(selected_ranges.leftColumn(), selected_ranges.rightColumn() + 1):
+                    item = self.show_table.item(row, col)
+                    row_str += item.text() + '\t'
+                text_str += row_str + '\n'
+            clipboard = QApplication.clipboard()
+            clipboard.setText(text_str)
+
     def is_allow_query(self):
         """ 是否允许查询判断函数 """
         self.tip_label.show()

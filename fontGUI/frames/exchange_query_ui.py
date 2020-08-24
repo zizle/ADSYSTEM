@@ -66,7 +66,6 @@ class ExchangeQueryUI(QWidget):
 
         self.show_table = QTableWidget(self)
         self.show_table.setEditTriggers(QAbstractItemView.NoEditTriggers)   # 不可编辑
-        self.show_table.setSelectionBehavior(QAbstractItemView.SelectRows)  # 选择为一行
         self.show_table.setFocusPolicy(Qt.NoFocus)                          # 去选中时的虚线框
         self.show_table.setAlternatingRowColors(True)                       # 交替行颜色
         self.show_table.horizontalHeader().setDefaultSectionSize(120)       # 默认的标题头宽
@@ -86,5 +85,5 @@ class ExchangeQueryUI(QWidget):
         self.show_table.horizontalHeader().setStyleSheet("QHeaderView::section,"
                                                          "QTableCornerButton::section{min-height:25px;background-color:rgb(243,245,248);font-weight:bold;font-size:14px}")
         self.setStyleSheet("#tipLabel{font-size:12x;font-weight:bold;color:rgb(230,50,50)}"
-                           "#dataTable{selection-color:rgb(180,60,60);selection-background-color:rgb(220,220,220);alternate-background-color:rgb(245,250,248)}"
+                           "#dataTable{selection-color:rgb(255,255,255);selection-background-color:rgb(51,143,255);alternate-background-color:rgb(245,250,248)}"
                            )

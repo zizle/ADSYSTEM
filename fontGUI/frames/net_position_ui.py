@@ -40,11 +40,12 @@ class NetPositionUI(QWidget):
         self.data_table = QTableWidget(self)
         self.data_table.setFrameShape(QFrame.NoFrame)
         self.data_table.setEditTriggers(QAbstractItemView.NoEditTriggers)   # 不可编辑
-        self.data_table.setSelectionBehavior(QAbstractItemView.SelectRows)  # 选择为一行
         self.data_table.setFocusPolicy(Qt.NoFocus)                          # 去选中时的虚线框
         self.data_table.setAlternatingRowColors(True)                       # 交替行颜色
         self.data_table.horizontalHeader().setDefaultSectionSize(85)        # 默认的标题头宽
         self.data_table.verticalHeader().hide()
+        self.data_table.verticalHeader().setDefaultSectionSize(18)          # 设置行高(与下行代码同时才生效)
+        self.data_table.verticalHeader().setMinimumSectionSize(18)
         main_layout.addWidget(self.data_table)
 
         self.setLayout(main_layout)
@@ -56,6 +57,6 @@ class NetPositionUI(QWidget):
         self.setStyleSheet(
             "#tipLabel{color:rgb(230,50,50);font-weight:bold;}"
             "#dataTable::item{padding:2px}"
-            "#dataTable{selection-color:rgb(180,60,60);selection-background-color:rgb(220,220,220);alternate-background-color:rgb(245,250,248)}"
+            "#dataTable{selection-color:rgb(255,255,255);selection-background-color:rgb(51,143,255);alternate-background-color:rgb(245,250,248)}"
         )
 
