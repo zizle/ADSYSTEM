@@ -42,7 +42,7 @@ async def all_variety_net_position(interval_days: int = Query(1)):
         cursor.execute(
             "select `date`,variety_en,(sum(long_position) - sum(short_position)) as net_position "
             "from czce_rank "
-            "where date<=%s and date>=%s and `rank`>=1 and `rank`<=20 "
+            "where date<=%s and date>=%s and `rank`>=1 and `rank`<=20 and variety_en=contract "
             "group by `date`,variety_en;",
             (end_date, start_date)
         )

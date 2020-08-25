@@ -9,8 +9,10 @@ from modules.user import user_router
 from modules.exchange_lib import exchange_router
 from modules.update import update_router
 from modules.trend import trend_router
+from modules.spot import spot_router
 
 router = APIRouter()
+router.include_router(spot_router, tags=["现货信息"])
 router.include_router(basic_router, tags=["基础信息"])
 router.include_router(user_router, tags=["用户"])
 router.include_router(exchange_router, tags=["交易所数据"])

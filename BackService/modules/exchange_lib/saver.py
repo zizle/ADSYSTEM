@@ -4,11 +4,9 @@
 # @Author: zizle
 from typing import List
 from datetime import datetime
-from pandas import DataFrame
 from fastapi import APIRouter, Body, HTTPException, Depends, Query
 from fastapi.encoders import jsonable_encoder
 from db.mysql_z import MySqlZ
-from configs import logger
 from .validate_items import (CZCEDailyItem, CZCERankItem, CZCEReceiptItem, SHFEDailyItem, SHFERankItem, CFFEXDailyItem,
                              CFFEXRankItem, DCEDailyItem, DCERankItem)
 

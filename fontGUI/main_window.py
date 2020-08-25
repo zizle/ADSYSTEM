@@ -17,6 +17,7 @@ from frames.net_position import NetPosition
 from admin.exchange_spider import ExchangeSpider
 from admin.user import UserAdmin
 from admin.variety import VarietyAdmin
+from admin.spot_price import SpotPrice
 from popup.update import UpdateDialog
 from utils.characters import half_width_to_full_width
 from configs import MAIN_MENUS
@@ -155,6 +156,8 @@ class MainWindow(MainWindowUI):
             central_widget = VarietyAdmin()
         elif action_id == "-9_3":  # 数据抓取
             central_widget = ExchangeSpider()
+        elif action_id == "-9_4":  # 现货价格
+            central_widget = SpotPrice()
         else:
             print(action.text(), action.__getattribute__("id"))
             central_widget = QLabel(action_id)
