@@ -14,6 +14,7 @@ from frames.exchange_query import ExchangeQuery
 from frames.contract_kei import ContractKei
 from frames.empty_volume import EmptyVolume
 from frames.net_position import NetPosition
+from frames.basis import Basis
 from admin.exchange_spider import ExchangeSpider
 from admin.user import UserAdmin
 from admin.variety import VarietyAdmin
@@ -146,10 +147,15 @@ class MainWindow(MainWindowUI):
             central_widget = ContractKei()
         elif action_id == "3_2":
             central_widget = EmptyVolume()  # 合约持仓分析
+        elif action_id == "3_3":
+            central_widget = Basis()        # 品种基差
         elif action_id == "-8_1":  # 检查更新
             p = UpdateDialog(self)
             p.exec_()
             return
+        elif action_id == '-8_2':
+            from frames.testTree import Tree
+            central_widget = Tree()
         elif action_id == "-9_1":
             central_widget = UserAdmin()
         elif action_id == "-9_2":  # 品种管理

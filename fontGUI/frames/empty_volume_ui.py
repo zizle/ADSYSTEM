@@ -7,26 +7,8 @@
 from PySide2.QtWidgets import (QSplitter, QWidget, QVBoxLayout, QHBoxLayout, QComboBox, QLabel, QPushButton, QButtonGroup,
                                QRadioButton, QSpinBox, QFrame, QGraphicsOpacityEffect)
 from PySide2.QtWebEngineWidgets import QWebEngineView
-from PySide2.QtCore import Qt, QMargins
+from PySide2.QtCore import QMargins
 from components.variety_tree import VarietyTree
-
-
-class WebEngineView(QWebEngineView):
-    def __init__(self, *args, **kwargs):
-        super(WebEngineView, self).__init__(*args, **kwargs)
-        self.can_resize = True
-
-    def set_no_resize(self, loaded):
-        print(loaded)
-        self.can_resize = not loaded
-
-    def event(self, event):
-        if self.can_resize:
-            super(WebEngineView, self).event(event)
-            print("11111")
-        else:
-            print("0000000")
-            return
 
 
 class EmptyVolumeUI(QSplitter):

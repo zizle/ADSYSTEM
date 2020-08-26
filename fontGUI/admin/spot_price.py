@@ -1,5 +1,5 @@
 # _*_ coding:utf-8 _*_
-# @File  : spot_price.py
+# @File  : basis_price.py
 # @Time  : 2020-08-25 15:01
 # @Author: zizle
 import re
@@ -31,12 +31,13 @@ class SpotPrice(SpotPriceUI):
             self.tip_label.setText("请输入源数据再进行提取! ")
             return
         self.tip_label.setText("正在提取数据... ")
-        variety_item_list = re.split(r'[;；]+', source_str)  # 根据分号切割
+        variety_item_list = re.split(r'[;；。]+', source_str)  # 根据分号切割
         for row, variety_item in enumerate(variety_item_list):
+            print(variety_item)
             data_list = re.split(r'[:,：，]+', variety_item)
             variety_dict = {
                 "date": self.today_str,
-                "variety_en": VARIETY_EN.get(data_list[0], "未知"),
+                "variety_en": VARIETY_EN.get(data_list[0].strip(), "未知"),
                 "spot_price": float(data_list[1]),
                 "price_increase": float(data_list[2])
             }
@@ -44,7 +45,7 @@ class SpotPrice(SpotPriceUI):
             self.preview_table.insertRow(row)
             item0 = QTableWidgetItem(variety_dict["date"])
             self.preview_table.setItem(row, 0, item0)
-            item1 = QTableWidgetItem(data_list[0])
+            item1 = QTableWidgetItem(data_list[0].strip())
             self.preview_table.setItem(row, 1, item1)
             item2 = QTableWidgetItem(variety_dict["variety_en"])
             self.preview_table.setItem(row, 2, item2)
@@ -85,6 +86,9 @@ class SpotPrice(SpotPriceUI):
         else:
             data = json.loads(data.decode("utf-8"))
             self.tip_label.setText(data["message"])
+        self.preview_table.clearContents()
+        self.preview_table.setRowCount(0)
+        self.source_edit.clear()
 
 
 

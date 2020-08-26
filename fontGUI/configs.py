@@ -28,14 +28,16 @@ MAIN_MENUS = [
     {"id": "3", "name": "数据分析", "logo": "", "children": [
         {"id": "3_1", "name": "合约K线", "logo": "icons/kei_line.png", "children": None},
         {"id": "3_2", "name": "持仓分析", "logo": "icons/empty_volume.png", "children": None},
+        {"id": "3_3", "name": "合约基差", "logo": "icons/basis_price.png", "children": None},
     ]},
     {"id": "-8", "name": "系统设置", "logo": "", "children": [
-        {"id": "-8_1", "name": "版本检查", "logo": "icons/update.png", "children": None}
+        {"id": "-8_1", "name": "版本检查", "logo": "icons/update.png", "children": None},
+        {"id": "-8_2", "name": "TreeWidget使用", "logo": "", "children": None}
     ]},
     {"id": "-9", "name": "后台管理", "logo": "", "children": [
         {"id": "-9_1", "name": "用户管理", "logo": "icons/user_manager.png", "children": None},
         {"id": "-9_2", "name": "品种管理", "logo": "icons/variety_manager.png", "children": None},
-        {"id": "-9_4", "name": "现货价格", "logo": "", "children": None},
+        {"id": "-9_4", "name": "现货价格", "logo": "icons/spot_price.png", "children": None},
         {"id": "-9_3", "name": "交易所数据抓取", "logo": "icons/spider.png", "children": None},
     ]}
 ]
