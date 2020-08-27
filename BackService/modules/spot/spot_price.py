@@ -7,7 +7,7 @@ from datetime import datetime
 from fastapi import APIRouter, Body, HTTPException, Query, Depends
 from fastapi.encoders import jsonable_encoder
 from db.mysql_z import MySqlZ
-from .validate_items import SpotPriceItem
+from .validate_items import SpotPriceItem, ModifySpotItem
 
 price_router = APIRouter()
 
@@ -36,3 +36,29 @@ async def spot_price(sources: List[SpotPriceItem] = Body(...), current_date: str
             count = cursor.executemany(save_sql, data_json)
             message = "保存{}现货价格数据成功!\n新增数量:{}".format(current_date, count)
     return {"message": message}
+
+
+@price_router.get("/spot/price/", summary="获取某日现货价格数据")
+async def query_spot_price(query_date: str = Depends(verify_date)):
+    with MySqlZ() as cursor:
+        cursor.execute(
+           "SELECT id,`date`,variety_en,spot_price,price_increase "
+           "FROM variety_spot_price "
+           "WHERE `date`=%s;",
+           (query_date, )
+        )
+        data = cursor.fetchall()
+
+    return {"message": "获取{}现货价格数据成功!".format(query_date), "data": data}
+
+
+@price_router.put("/spot/price/{record_id}/", summary="修改某个现货价格记录")
+async def modify_spot_price(record_id: int, spot_item: ModifySpotItem = Body(...)):
+    with MySqlZ() as cursor:
+        cursor.execute(
+            "UPDATE variety_spot_price SET "
+            "spot_price=%(spot_price)s,price_increase=%(price_increase)s "
+            "WHERE `id`=%(id)s and variety_en=%(variety_en)s;",
+            jsonable_encoder(spot_item)
+        )
+    return {"message": "修改ID = {}的现货数据成功!".format(record_id)}

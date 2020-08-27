@@ -11,3 +11,6 @@ class SpotPriceItem(BaseModel):
     spot_price: float
     price_increase: float
 
+
+class ModifySpotItem(SpotPriceItem):
+    id: int

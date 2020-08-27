@@ -5,8 +5,9 @@
 import re
 import json
 from datetime import datetime
-from PySide2.QtWidgets import QApplication, QTableWidgetItem
+from PySide2.QtWidgets import QApplication, QTableWidgetItem, QPushButton, QAbstractItemView
 from PySide2.QtGui import QBrush, QColor
+from PySide2.QtCore import QUrl, Qt
 from PySide2.QtNetwork import QNetworkRequest
 from .spot_price_ui import SpotPriceUI
 from utils.constant import VARIETY_EN
@@ -20,6 +21,8 @@ class SpotPrice(SpotPriceUI):
         self.today_str = ""
         self.analysis_button.clicked.connect(self.extract_spot_source_price)  # 提取数据
         self.commit_button.clicked.connect(self.commit_spot_data)             # 上传提交数据
+
+        self.modify_query_button.clicked.connect(self.query_spot_data)        # 查询现货报价数据
 
     def extract_spot_source_price(self):
         """ 提取现货数据 """
@@ -70,7 +73,7 @@ class SpotPrice(SpotPriceUI):
         app = QApplication.instance()
         network_manager = getattr(app, "_network")
         url = SERVER + "spot/price/?date=" + self.today_str
-        request = QNetworkRequest(url=url)
+        request = QNetworkRequest(QUrl(url))
         request.setHeader(QNetworkRequest.ContentTypeHeader, "application/json;charset=utf-8")
 
         reply = network_manager.post(request, json.dumps(self.final_data).encode("utf-8"))
@@ -90,6 +93,89 @@ class SpotPrice(SpotPriceUI):
         self.preview_table.setRowCount(0)
         self.source_edit.clear()
 
+    def query_spot_data(self):
+        """ 查询指定日期现货数据用于修改 """
+        query_date = self.modify_date_edit.text()
+        query_date_str = datetime.strptime(query_date, "%Y-%m-%d").strftime("%Y%m%d")
+        app = QApplication.instance()
+        network_manager = getattr(app, "_network")
+        url = SERVER + "spot/price/?date=" + query_date_str
 
+        reply = network_manager.get(QNetworkRequest(QUrl(url)))
+        reply.finished.connect(self.query_spot_price_reply)
 
+    def query_spot_price_reply(self):
+        """ 获取指定日期现货数据返回 """
+        reply = self.sender()
+        data = reply.readAll().data()
+        if reply.error():
+            self.modify_tip_label.setText("获取{}现货动态数据失败:\n{}".format(self.modify_date_edit.text(), reply.error()))
+        else:
+            data = json.loads(data.decode("utf-8"))
+            self.modify_tip_label.setText(data["message"])
+        reply.deleteLater()
+        self.modify_table.clearContents()
+        self.modify_table.setRowCount(0)
+        for row, row_item in enumerate(data["data"]):
+            self.modify_table.insertRow(row)
+            item0 = QTableWidgetItem(str(row_item["id"]))
+            item1 = QTableWidgetItem(row_item["date"])
+            item2 = QTableWidgetItem(row_item["variety_en"])
+            item3 = QTableWidgetItem(str(row_item["spot_price"]))
+            item4 = QTableWidgetItem(str(row_item["price_increase"]))
+            item0.setTextAlignment(Qt.AlignCenter)
+            item1.setTextAlignment(Qt.AlignCenter)
+            item2.setTextAlignment(Qt.AlignCenter)
+            item3.setTextAlignment(Qt.AlignCenter)
+            item4.setTextAlignment(Qt.AlignCenter)
+            # ID 日期 品种不支持修改
+            item0.setFlags(Qt.ItemIsEditable)
+            item0.setForeground(QBrush(QColor(50, 50, 50)))
+            item1.setFlags(Qt.ItemIsEditable)
+            item1.setForeground(QBrush(QColor(50, 50, 50)))
+            item2.setFlags(Qt.ItemIsEditable)
+            item2.setForeground(QBrush(QColor(50, 50, 50)))
+            self.modify_table.setItem(row, 0, item0)
+            self.modify_table.setItem(row, 1, item1)
+            self.modify_table.setItem(row, 2, item2)
+            self.modify_table.setItem(row, 3, item3)
+            self.modify_table.setItem(row, 4, item4)
+            m_button = QPushButton("确定", self)
+            m_button.setObjectName("modifyButton")
+            m_button.setCursor(Qt.PointingHandCursor)
+            setattr(m_button, 'row_index', row)
+            m_button.clicked.connect(self.modify_row_data)
+            self.modify_table.setCellWidget(row, 5, m_button)
 
+    def modify_row_data(self):
+        """ 修改数据表的单元格点击 """
+        btn = self.sender()
+        row = getattr(btn, 'row_index')
+        # 获取组织数据
+        item = {
+            "id": int(self.modify_table.item(row, 0).text()),
+            "date": self.modify_table.item(row, 1).text(),
+            "variety_en": self.modify_table.item(row, 2).text(),
+            "spot_price": float(self.modify_table.item(row, 3).text()),
+            "price_increase": float(self.modify_table.item(row, 4).text())
+        }
+        app = QApplication.instance()
+        network_manager = getattr(app, "_network")
+        url = SERVER + "spot/price/{}/".format(item["id"])
+
+        request = QNetworkRequest(QUrl(url))
+        request.setHeader(QNetworkRequest.ContentTypeHeader, "application/json;charset=utf-8")
+
+        reply = network_manager.put(request, json.dumps(item).encode("utf-8"))
+        reply.finished.connect(self.modify_spot_price_reply)
+
+    def modify_spot_price_reply(self):
+        """ 修改数据返回 """
+        reply = self.sender()
+        data = reply.readAll().data()
+        if reply.error():
+            self.modify_tip_label.setText("修改数据失败:\n{}".format(self.modify_date_edit.text(), reply.error()))
+        else:
+            data = json.loads(data.decode("utf-8"))
+            self.modify_tip_label.setText(data["message"])
+        reply.deleteLater()

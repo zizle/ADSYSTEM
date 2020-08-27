@@ -29,7 +29,6 @@ class MySqlZ(Connection):
 
     def __enter__(self):
         """Context manager that returns a Cursor"""
-        print("开启数据库并开启事务,结果:", self.open)
         if self.open:
             self.begin()
             return self.execute_cursor
@@ -44,4 +43,3 @@ class MySqlZ(Connection):
             self.commit()
         self.execute_cursor.close()
         self.close()
-        print("Mysql关闭")

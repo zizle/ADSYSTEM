@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>合约基差</title>
+    <script src="js/jquery-1.7.2.min.js"></script>
+    <script src="js/echarts.min.js"></script>
+    <script src="js/qwebchannel.js"></script>
 </head>
 <style>
 html,body{margin: 0;padding: 0}
@@ -12,4 +15,85 @@ html,body{margin: 0;padding: 0}
 <div id="chartBox"></div>
 
 </body>
+<script>
+// 实例化echarts_option的函数
+function basisOptions(sourceData, title){
+    return {
+        title:{
+            text: title,
+        },
+        xAxis:{
+            data: sourceData.map(item=>item.date)
+        },
+        yAxis:{
+            scale: true,
+            splitArea: {
+                show: true
+            }
+        },
+        tooltip:{
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross',
+            }
+        },
+        dataZoom: [
+            {
+                show: true,
+                type: 'slider',
+                start: 0,
+                end: 100,
+            }
+        ],
+        legend:{
+            show: true,
+
+        },
+        series:[
+            {
+                type: 'bar',
+                name: "基差",
+                data: sourceData.map(item=>{
+                    return (item.spot_price - item.close_price).toFixed(2)
+                })
+            },
+            {
+                type: 'line',
+                name: "现货",
+                symbol: 'circle',
+                data: sourceData.map(item=>{
+                    return item.spot_price
+                })
+            },
+            {
+                type: 'line',
+                name: "收盘",
+                symbol: 'circle',
+                data: sourceData.map(item=>{
+                    return item.close_price
+                })
+            },
+
+        ]
+    };
+
+}
+
+
+$(function () {
+    let chartObj = echarts.init(document.getElementById('chartBox'));
+    // 与UI界面通讯的实例
+    new QWebChannel(qt.webChannelTransport, function(channel)
+        {
+            let pageContact = channel.objects.pageContactChannel;
+
+            pageContact.basis_data.connect(function (data, title) {
+                // alert(data)
+                const option = basisOptions(JSON.parse(data), title);
+                chartObj.setOption(option, true)
+            });
+        }
+    );
+})
+</script>
 </html>

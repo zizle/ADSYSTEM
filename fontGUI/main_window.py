@@ -11,10 +11,10 @@ from main_window_ui import MainWindowUI
 from frames.homepage import Homepage
 from frames.passport import PassportPage
 from frames.exchange_query import ExchangeQuery
-from frames.contract_kei import ContractKei
-from frames.empty_volume import EmptyVolume
-from frames.net_position import NetPosition
-from frames.basis import Basis
+from frames.trend.contract_kei import ContractKei
+from frames.trend.empty_volume import EmptyVolume
+from frames.trend.net_position import NetPosition
+from frames.trend.basis import Basis
 from admin.exchange_spider import ExchangeSpider
 from admin.user import UserAdmin
 from admin.variety import VarietyAdmin

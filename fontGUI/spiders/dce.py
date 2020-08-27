@@ -182,7 +182,7 @@ class DCEParser(QObject):
         data_body = source_df.to_dict(orient="records")
         app = QApplication.instance()
         network_manager = getattr(app, "_network")
-        url = SERVER + "/exchange/dce/daily/?date=" + self.date.strftime("%Y-%m-%d")
+        url = SERVER + "exchange/dce/daily/?date=" + self.date.strftime("%Y-%m-%d")
         request = QNetworkRequest(url=url)
         request.setHeader(QNetworkRequest.ContentTypeHeader, "application/json;charset=utf-8")
 
