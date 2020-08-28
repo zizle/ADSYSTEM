@@ -41,7 +41,7 @@ class PassportPage(PassportPageUI):
         network_manager = getattr(app, "_network")
         self._code_uuid = ''.join(str(uuid.uuid4()).split("-"))
         # 保存code_uuid方便登录使用
-        url = SERVER + '/image_code/?code_uuid=' + self._code_uuid
+        url = SERVER + 'image_code/?code_uuid=' + self._code_uuid
         request = QNetworkRequest(url=QUrl(url))
         reply = network_manager.get(request)
 
@@ -95,7 +95,7 @@ class PassportPage(PassportPageUI):
         }
         multi_data = generate_multipart_data(text_dict)
 
-        url = SERVER + "/login/"
+        url = SERVER + "login/"
         request = QNetworkRequest(url=QUrl(url))
         # request.setHeader(QNetworkRequest.ContentTypeHeader, "multipart/form-data; boundary=%s" % multi_data.boundary())  # 设置后服务器无法找到边界报400
         reply = network_manager.post(request, multi_data)
@@ -144,7 +144,7 @@ class PassportPage(PassportPageUI):
         app = QApplication.instance()
         network_manager = getattr(app, "_network")
 
-        url = SERVER + "/register/"
+        url = SERVER + "register/"
         request = QNetworkRequest(url=QUrl(url))
         # request.setHeader(QNetworkRequest.ContentTypeHeader, "multipart/form-data; boundary=%s" % multi_data.boundary())  # 设置后服务器无法找到边界报400
         reply = network_manager.post(request, multi_data)

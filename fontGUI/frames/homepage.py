@@ -26,7 +26,7 @@ class Homepage(HomepageUI):
         print(token)
         app = QApplication.instance()
         network_manager = getattr(app, "_network")
-        url = SERVER + "/token_login/"
+        url = SERVER + "token_login/"
         request = QNetworkRequest(QUrl(url))
         request.setRawHeader("Authorization".encode("utf-8"), token.encode("utf-8"))
         reply = network_manager.get(request)
